@@ -525,11 +525,12 @@ class _EditSkrbDialogState extends ConsumerState<EditSkrbDialog> {
     final optionsAsync = ref.watch(jenisPengajuanOptionsProvider);
     return optionsAsync.when(
       data: (items) {
-        final selectedItem = items
+        final filteredItems = items.where((e) => e.id != 4).toList();
+        final selectedItem = filteredItems
             .where((e) => e.id == _selectedJenisPengajuanId)
             .firstOrNull;
         return DropdownSearch<OptionItem>(
-          items: (filter, _) => items,
+          items: (filter, _) => filteredItems,
           itemAsString: (OptionItem item) => item.name,
           compareFn: (i1, i2) => i1.id == i2.id,
           selectedItem: selectedItem,

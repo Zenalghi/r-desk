@@ -540,7 +540,8 @@ class _TambahPermohonanSkrbDialogState
                                   ),
                                 ),
                                 data: (items) {
-                                  final selectedItem = items
+                                  final filteredItems = items.where((e) => e.id != 4).toList();
+                                  final selectedItem = filteredItems
                                       .where(
                                         (e) =>
                                             e.id == _selectedJenisPengajuanId,
@@ -548,7 +549,7 @@ class _TambahPermohonanSkrbDialogState
                                       .firstOrNull;
                                   return DropdownSearch<OptionItem>(
                                     key: _pengajuanDropdownKey,
-                                    items: (filter, _) => items,
+                                    items: (filter, _) => filteredItems,
                                     itemAsString: (item) => item.name,
                                     compareFn: (i1, i2) => i1.id == i2.id,
                                     selectedItem: selectedItem,
