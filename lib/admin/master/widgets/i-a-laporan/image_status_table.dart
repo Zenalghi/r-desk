@@ -68,6 +68,12 @@ class _ImageStatusTableState extends ConsumerState<ImageStatusTable> {
   }
 
   void _onSort(int columnIndex, bool ascending) {
+    // PETUNJUK MENGEMBALIKAN KOLOM CREATED AT & UPDATED AT:
+    // Jika ingin mengembalikan kolom Created At & Updated At:
+    // 1. Un-comment mapping 7 ('created_at') & 8 ('updated_at') di bawah ini.
+    // 2. Ubah index 'deskripsi_optional' kembali menjadi 9.
+    // 3. Un-comment DataColumn2 'Created At' & 'Updated At' di _createColumns().
+    // 4. Un-comment DataCell 'Created At' & 'Updated At' di image_status_datasource.dart.
     final Map<int, String> columnMapping = {
       0: 'id',
       1: 'type_engine',
@@ -75,9 +81,9 @@ class _ImageStatusTableState extends ConsumerState<ImageStatusTable> {
       3: 'type_chassis',
       4: 'jenis_kendaraan',
       5: 'varian_body',
-      7: 'created_at',
-      8: 'updated_at',
-      9: 'deskripsi_optional',
+      // 7: 'created_at',
+      // 8: 'updated_at',
+      7: 'deskripsi_optional',
     };
 
     setState(() {
@@ -135,19 +141,23 @@ class _ImageStatusTableState extends ConsumerState<ImageStatusTable> {
         label: Center(child: Text('Gambar Utama', textAlign: TextAlign.center)),
         fixedWidth: 123,
       ),
+
+      /* 
+      // === KOLOM CREATED AT & UPDATED AT DI-NONAKTIFKAN ===
+      // Hapus tanda komentar /* ... */ ini untuk mengembalikan kolom Created At & Updated At:
       DataColumn2(
         label: const Text('Created At'),
         fixedWidth: 99,
         onSort: _onSort,
       ),
-      // 8. Updated At
       DataColumn2(
         label: const Text('Updated At'),
         fixedWidth: 99,
         onSort: _onSort,
       ),
+      */
 
-      // 9. Gbr. Optional Paket
+      // 8. Gbr. Optional Paket
       DataColumn2(
         label: const Text('Gbr. Optional\nPaket'),
         size: ColumnSize.M,

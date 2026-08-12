@@ -15,8 +15,8 @@ class CustomerDataTable extends ConsumerStatefulWidget {
 class _CustomerDataTableState extends ConsumerState<CustomerDataTable> {
   int _rowsPerPage = 50;
   int _currentPage = 1;
-  String _sortBy = 'updated_at';
-  bool _sortAscending = false;
+  String _sortBy = 'nama_pt'; // Default sort pada kolom Customer (nama_pt)
+  bool _sortAscending = true; // Ascending (A-Z)
   bool _isRefreshing = false;
 
   @override

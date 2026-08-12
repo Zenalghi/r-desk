@@ -124,6 +124,9 @@ class ImageStatusDataSource extends AsyncDataTableSource {
                         ),
                 ),
               ),
+              /*
+              // === KOLOM CREATED AT & UPDATED AT DI-NONAKTIFKAN ===
+              // Hapus tanda komentar /* ... */ ini jika ingin mengembalikan sel Created At & Updated At:
               DataCell(
                 SelectableText(
                   item.gambarUtamaCreatedAt != null
@@ -131,7 +134,6 @@ class ImageStatusDataSource extends AsyncDataTableSource {
                       : 'Belum ada',
                 ),
               ),
-              // 8. Updated At
               DataCell(
                 SelectableText(
                   item.gambarUtamaUpdatedAt != null
@@ -139,6 +141,7 @@ class ImageStatusDataSource extends AsyncDataTableSource {
                       : 'Belum ada',
                 ),
               ),
+              */
 
               // 9. Gbr Optional (Deskripsi)
               DataCell(
