@@ -4,28 +4,103 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:pdfrx/pdfrx.dart';
 
+/// Function helper untuk membuka modal dialog preview PDF dalam ukuran besar.
+void showPdfPreviewDialog(
+  BuildContext context, {
+  required Widget previewWidget,
+  required String title,
+}) {
+  showDialog(
+    context: context,
+    builder: (ctx) {
+      return Dialog(
+        insetPadding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: SizedBox(
+          width: MediaQuery.of(context).size.width * 0.85,
+          height: MediaQuery.of(context).size.height * 0.85,
+          child: Column(
+            children: [
+              // Header
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(12),
+                  ),
+                  border: Border(
+                    bottom: BorderSide(color: Theme.of(context).dividerColor),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.picture_as_pdf, color: Colors.red),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      tooltip: 'Tutup',
+                      onPressed: () => Navigator.of(ctx).pop(),
+                    ),
+                  ],
+                ),
+              ),
+              // Body preview
+              Expanded(
+                child: Container(
+                  color: Colors.grey.shade200,
+                  child: previewWidget,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
+}
+
 /// Kotak preview PDF berukuran A4 portrait.
 /// Menampilkan placeholder jika [previewContent] null.
 class DocPreviewBox extends StatelessWidget {
   final Widget? previewContent;
   final ColorScheme colorScheme;
+  final VoidCallback? onOpenPreview;
+  final String title;
 
   const DocPreviewBox({
     super.key,
     required this.previewContent,
     required this.colorScheme,
+    this.onOpenPreview,
+    this.title = 'Preview PDF',
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final hasPreview = previewContent != null;
+
+    Widget child = Container(
       height: 450,
       decoration: BoxDecoration(
         color: colorScheme.surfaceContainerLow,
         border: Border.all(color: colorScheme.outlineVariant, width: 1.5),
         borderRadius: BorderRadius.circular(6),
         boxShadow: [
-          if (previewContent != null)
+          if (hasPreview)
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.08),
               blurRadius: 4,
@@ -37,35 +112,87 @@ class DocPreviewBox extends StatelessWidget {
         aspectRatio: 210 / 297, // A4 Portrait
         child: ClipRRect(
           borderRadius: BorderRadius.circular(5),
-          child:
-              previewContent ??
-              Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.picture_as_pdf_outlined,
-                      size: 40,
-                      color: colorScheme.onSurfaceVariant.withValues(
-                        alpha: 0.4,
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child:
+                    previewContent ??
+                    Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.picture_as_pdf_outlined,
+                            size: 40,
+                            color: colorScheme.onSurfaceVariant.withValues(
+                              alpha: 0.4,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Preview',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: colorScheme.onSurfaceVariant.withValues(
+                                alpha: 0.6,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Preview',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: colorScheme.onSurfaceVariant.withValues(
-                          alpha: 0.6,
+              ),
+              if (hasPreview)
+                Positioned(
+                  top: 6,
+                  right: 6,
+                  child: Material(
+                    color: Colors.black.withValues(alpha: 0.6),
+                    borderRadius: BorderRadius.circular(20),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      onTap:
+                          onOpenPreview ??
+                          () => showPdfPreviewDialog(
+                            context,
+                            previewWidget: previewContent!,
+                            title: title,
+                          ),
+                      child: const Padding(
+                        padding: EdgeInsets.all(6.0),
+                        child: Icon(
+                          Icons.fullscreen,
+                          color: Colors.white,
+                          size: 18,
                         ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
+            ],
+          ),
         ),
       ),
     );
+
+    // if (hasPreview) {
+    //   return Tooltip(
+    //     message: 'Klik untuk membuka preview penuh',
+    //     child: InkWell(
+    //       borderRadius: BorderRadius.circular(6),
+    //       onTap:
+    //           onOpenPreview ??
+    //           () => showPdfPreviewDialog(
+    //             context,
+    //             previewWidget: previewContent!,
+    //             title: title,
+    //           ),
+    //       child: child,
+    //     ),
+    //   );
+    // }
+
+    return child;
   }
 }
 

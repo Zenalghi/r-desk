@@ -119,7 +119,7 @@ class _ImageStatusTableState extends ConsumerState<ImageStatusTable> {
       // 5. Jenis Kendaraan
       DataColumn2(
         label: const Text('Jenis Kendaraan'),
-        fixedWidth: 115,
+        fixedWidth: 210,
         onSort: _onSort,
       ),
 
@@ -150,7 +150,7 @@ class _ImageStatusTableState extends ConsumerState<ImageStatusTable> {
       // 9. Gbr. Optional Paket
       DataColumn2(
         label: const Text('Gbr. Optional\nPaket'),
-        size: ColumnSize.L,
+        size: ColumnSize.M,
         onSort: _onSort,
       ),
     ];

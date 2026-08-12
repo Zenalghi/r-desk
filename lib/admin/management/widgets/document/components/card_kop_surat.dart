@@ -81,6 +81,13 @@ class CardKopSurat extends StatelessWidget {
                       fileName: fileName,
                       fileSize: fileSize,
                       onPick: onPick,
+                      onPreview: (hasExisting || hasNew) && previewWidget != null
+                          ? () => showPdfPreviewDialog(
+                                context,
+                                previewWidget: previewWidget!,
+                                title: 'Preview PDF - Kop Surat',
+                              )
+                          : null,
                     ),
                 ],
               ),
@@ -90,6 +97,7 @@ class CardKopSurat extends StatelessWidget {
             DocPreviewBox(
               previewContent: previewWidget,
               colorScheme: colorScheme,
+              title: 'Preview PDF - Kop Surat',
             ),
           ],
         ),

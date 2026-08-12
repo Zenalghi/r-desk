@@ -34,6 +34,7 @@ class DocFilePicker extends StatelessWidget {
   final int? fileSize;
   final bool isMultiple;
   final VoidCallback onPick;
+  final VoidCallback? onPreview;
 
   const DocFilePicker({
     super.key,
@@ -41,6 +42,7 @@ class DocFilePicker extends StatelessWidget {
     required this.fileName,
     this.fileSize,
     required this.onPick,
+    this.onPreview,
     this.isMultiple = false,
   });
 
@@ -51,20 +53,48 @@ class DocFilePicker extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        SizedBox(
-          height: 34,
-          child: ElevatedButton.icon(
-            onPressed: onPick,
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              textStyle: const TextStyle(fontSize: 11),
+        Wrap(
+          spacing: 8,
+          runSpacing: 6,
+          children: [
+            SizedBox(
+              height: 34,
+              child: ElevatedButton.icon(
+                onPressed: onPick,
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  textStyle: const TextStyle(fontSize: 11),
+                ),
+                icon: const Icon(Icons.upload_file, size: 14),
+                label: Text(
+                  hasFile ? 'Ganti PDF' : 'Pilih File PDF',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ),
-            icon: const Icon(Icons.upload_file, size: 14),
-            label: Text(
-              hasFile ? 'Ganti PDF' : 'Pilih File PDF',
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-            ),
-          ),
+            if (hasFile && onPreview != null)
+              SizedBox(
+                height: 34,
+                child: OutlinedButton.icon(
+                  onPressed: onPreview,
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    textStyle: const TextStyle(fontSize: 11),
+                  ),
+                  icon: const Icon(Icons.visibility, size: 14),
+                  label: const Text(
+                    'Preview',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
         const SizedBox(height: 6),
         Text(

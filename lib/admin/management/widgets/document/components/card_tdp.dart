@@ -286,12 +286,13 @@ class _TdpFileRow extends StatelessWidget {
                 ),
               ],
               const SizedBox(height: 8),
-              if (isAdmin && (data.onReplace != null || data.onDelete != null))
+              if (data.previewWidget != null ||
+                  (isAdmin && (data.onReplace != null || data.onDelete != null)))
                 Wrap(
                   spacing: 6,
                   runSpacing: 7,
                   children: [
-                    if (data.onReplace != null)
+                    if (isAdmin && data.onReplace != null)
                       SizedBox(
                         height: 34,
                         child: ElevatedButton.icon(
@@ -310,7 +311,30 @@ class _TdpFileRow extends StatelessWidget {
                           ),
                         ),
                       ),
-                    if (data.onDelete != null)
+                    if (data.previewWidget != null)
+                      SizedBox(
+                        height: 34,
+                        child: OutlinedButton.icon(
+                          onPressed: () => showPdfPreviewDialog(
+                            context,
+                            previewWidget: data.previewWidget!,
+                            title: 'Preview PDF - TDP ${data.index + 1}',
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            textStyle: const TextStyle(fontSize: 11),
+                          ),
+                          icon: const Icon(Icons.visibility, size: 14),
+                          label: const Text(
+                            'Preview',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                    if (isAdmin && data.onDelete != null)
                       SizedBox(
                         height: 34,
                         width: 100,
@@ -345,6 +369,7 @@ class _TdpFileRow extends StatelessWidget {
         DocPreviewBox(
           previewContent: data.previewWidget,
           colorScheme: colorScheme,
+          title: 'Preview PDF - TDP ${data.index + 1}',
         ),
       ],
     );

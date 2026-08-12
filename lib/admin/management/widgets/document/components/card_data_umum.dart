@@ -78,6 +78,13 @@ class CardDataUmum extends StatelessWidget {
                       fileName: fileName,
                       fileSize: fileSize,
                       onPick: onPick,
+                      onPreview: (hasExisting || hasNew) && previewWidget != null
+                          ? () => showPdfPreviewDialog(
+                                context,
+                                previewWidget: previewWidget!,
+                                title: 'Preview PDF - Data Umum Perusahaan',
+                              )
+                          : null,
                     ),
                 ],
               ),
@@ -87,6 +94,7 @@ class CardDataUmum extends StatelessWidget {
             DocPreviewBox(
               previewContent: previewWidget,
               colorScheme: colorScheme,
+              title: 'Preview PDF - Data Umum Perusahaan',
             ),
           ],
         ),
