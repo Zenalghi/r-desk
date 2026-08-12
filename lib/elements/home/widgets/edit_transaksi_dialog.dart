@@ -175,7 +175,6 @@ class _EditTransaksiDialogState extends ConsumerState<EditTransaksiDialog> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // 1. CUSTOMER
                 // 1. CUSTOMER (SEARCHABLE)
                 DropdownSearch<OptionItem>(
                   items: (String filter, _) =>

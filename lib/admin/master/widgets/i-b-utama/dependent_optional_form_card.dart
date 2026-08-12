@@ -5,7 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pdfx/pdfx.dart';
+import 'package:pdfrx/pdfrx.dart';
 import '../../providers/master_data_providers.dart';
 
 class DependentOptionalFormCard extends ConsumerStatefulWidget {
@@ -167,39 +167,37 @@ class _PdfPreviewer extends StatefulWidget {
 }
 
 class _PdfPreviewerState extends State<_PdfPreviewer> {
-  late PdfController _pdfController;
-
-  @override
-  void initState() {
-    super.initState();
-    // COPY BYTES
-    final bytesCopy = Uint8List.fromList(widget.file.bytes);
-
-    _pdfController = PdfController(document: PdfDocument.openData(bytesCopy));
-  }
-
-  @override
-  void didUpdateWidget(covariant _PdfPreviewer oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.file.name != oldWidget.file.name ||
-        widget.file.size != oldWidget.file.size) {
-      _pdfController.dispose();
-
-      // COPY BYTES
-      final bytesCopy = Uint8List.fromList(widget.file.bytes);
-
-      _pdfController = PdfController(document: PdfDocument.openData(bytesCopy));
-    }
-  }
-
-  @override
-  void dispose() {
-    _pdfController.dispose();
-    super.dispose();
-  }
+  final _pdfController = PdfViewerController();
 
   @override
   Widget build(BuildContext context) {
-    return PdfView(key: ValueKey(widget.file.name), controller: _pdfController);
+    final bytesCopy = Uint8List.fromList(widget.file.bytes);
+    return GestureDetector(
+      onDoubleTapDown: (details) {
+        if (_pdfController.isReady) {
+          final current = _pdfController.currentZoom;
+          final fit = _pdfController.alternativeFitScale ?? _pdfController.minScale;
+          final cover = _pdfController.coverScale;
+          if ((current - fit).abs() < 0.05) {
+            _pdfController.setZoom(details.localPosition, cover);
+          } else {
+            _pdfController.setZoom(details.localPosition, fit);
+          }
+        }
+      },
+      onDoubleTap: () {},
+      child: PdfViewer.data(
+        bytesCopy,
+        sourceName: widget.file.name,
+        key: ValueKey('${widget.file.name}_${widget.file.size}'),
+        controller: _pdfController,
+        params: PdfViewerParams(
+          textSelectionParams: const PdfTextSelectionParams(enabled: false),
+          sizeDelegateProvider: PdfViewerSizeDelegateProviderLegacy(
+            calculateInitialZoom: (doc, controller, altFitScale, coverScale) => altFitScale,
+          ),
+        ),
+      ),
+    );
   }
 }

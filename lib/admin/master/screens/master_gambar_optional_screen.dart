@@ -9,7 +9,7 @@ import 'package:dio/dio.dart';
 import 'package:master_gambar/admin/master/providers/master_data_providers.dart';
 import 'package:master_gambar/admin/master/repository/master_data_repository.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pdfx/pdfx.dart';
+import 'package:pdfrx/pdfrx.dart';
 import '../../../data/models/option_item.dart';
 import '../models/gambar_optional.dart';
 import '../widgets/i-c-optional/pilih_master_data_card.dart';
@@ -29,7 +29,8 @@ class _MasterGambarOptionalScreenState
   final _deskripsiController = TextEditingController();
   final _searchController = TextEditingController();
   PdfFileData? _selectedFile;
-  PdfController? _pdfController;
+  Uint8List? _pdfPreviewBytes;
+  final _pdfController = PdfViewerController();
 
   final ExpansionTileController _expansionController =
       ExpansionTileController();
@@ -38,7 +39,6 @@ class _MasterGambarOptionalScreenState
   void dispose() {
     _deskripsiController.dispose();
     _searchController.dispose();
-    _pdfController?.dispose();
     super.dispose();
   }
 
@@ -59,8 +59,7 @@ class _MasterGambarOptionalScreenState
     // 1. Reset state preview lama
     setState(() {
       _isLoading = true;
-      _pdfController?.dispose();
-      _pdfController = null;
+      _pdfPreviewBytes = null;
       _selectedFile = null;
     });
 
@@ -108,10 +107,7 @@ class _MasterGambarOptionalScreenState
 
       setState(() {
         final bytesCopy = Uint8List.fromList(pdfBytes);
-
-        _pdfController = PdfController(
-          document: PdfDocument.openData(bytesCopy),
-        );
+        _pdfPreviewBytes = bytesCopy;
       });
 
       if (!_expansionController.isExpanded) {
@@ -167,8 +163,7 @@ class _MasterGambarOptionalScreenState
     _deskripsiController.clear();
     setState(() {
       _selectedFile = null;
-      _pdfController?.dispose();
-      _pdfController = null;
+      _pdfPreviewBytes = null;
     });
   }
 
@@ -223,14 +218,9 @@ class _MasterGambarOptionalScreenState
             bytes: fileBytes!,
             size: file.size,
           );
-          _pdfController?.dispose();
 
-          // --- PERBAIKAN FLUTTER WEB: COPY BYTES ---
           final bytesCopy = Uint8List.fromList(fileBytes);
-
-          _pdfController = PdfController(
-            document: PdfDocument.openData(bytesCopy),
-          );
+          _pdfPreviewBytes = bytesCopy;
         });
       }
     }
@@ -346,8 +336,7 @@ class _MasterGambarOptionalScreenState
     _deskripsiController.clear();
     setState(() {
       _selectedFile = null;
-      _pdfController?.dispose();
-      _pdfController = null;
+      _pdfPreviewBytes = null;
     });
 
     // 2. Pastikan Mode Edit Mati (Jadi Mode Tambah Baru)
@@ -609,13 +598,35 @@ class _MasterGambarOptionalScreenState
                           ),
                           child: _isLoading
                               ? const Center(child: CircularProgressIndicator())
-                              : _pdfController != null
-                              ? PdfView(
-                                  // 6. UBAH VALUE KEY
-                                  key: ValueKey(
-                                    _selectedFile?.name ?? 'server_file',
+                              : _pdfPreviewBytes != null
+                              ? GestureDetector(
+                                  onDoubleTapDown: (details) {
+                                    if (_pdfController.isReady) {
+                                      final current = _pdfController.currentZoom;
+                                      final fit = _pdfController.alternativeFitScale ?? _pdfController.minScale;
+                                      final cover = _pdfController.coverScale;
+                                      if ((current - fit).abs() < 0.05) {
+                                        _pdfController.setZoom(details.localPosition, cover);
+                                      } else {
+                                        _pdfController.setZoom(details.localPosition, fit);
+                                      }
+                                    }
+                                  },
+                                  onDoubleTap: () {},
+                                  child: PdfViewer.data(
+                                    _pdfPreviewBytes!,
+                                    sourceName: _selectedFile?.name ?? 'optional.pdf',
+                                    key: ValueKey(
+                                      _selectedFile?.name ?? _pdfPreviewBytes.hashCode.toString(),
+                                    ),
+                                    controller: _pdfController,
+                                    params: PdfViewerParams(
+                                      textSelectionParams: const PdfTextSelectionParams(enabled: false),
+                                      sizeDelegateProvider: PdfViewerSizeDelegateProviderLegacy(
+                                        calculateInitialZoom: (doc, controller, altFitScale, coverScale) => altFitScale,
+                                      ),
+                                    ),
                                   ),
-                                  controller: _pdfController!,
                                 )
                               : Center(
                                   child: Icon(

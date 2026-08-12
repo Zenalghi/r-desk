@@ -2,7 +2,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:pdfx/pdfx.dart';
+import 'package:pdfrx/pdfrx.dart';
 
 /// Kotak preview PDF berukuran A4 portrait.
 /// Menampilkan placeholder jika [previewContent] null.
@@ -89,30 +89,31 @@ class A4PdfPreviewer extends StatefulWidget {
 }
 
 class _A4PdfPreviewerState extends State<A4PdfPreviewer> {
-  PdfController? _pdfController;
+  Uint8List? _pdfData;
   bool _isLoading = true;
   String? _errorMessage;
+  final _pdfController = PdfViewerController();
 
   @override
   void initState() {
     super.initState();
-    _initController();
+    _initData();
   }
 
   @override
   void didUpdateWidget(covariant A4PdfPreviewer oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.cacheKey != oldWidget.cacheKey) {
-      _disposeController();
       setState(() {
         _isLoading = true;
         _errorMessage = null;
+        _pdfData = null;
       });
-      _initController();
+      _initData();
     }
   }
 
-  Future<void> _initController() async {
+  Future<void> _initData() async {
     try {
       Uint8List data;
       if (widget.bytes != null) {
@@ -126,7 +127,7 @@ class _A4PdfPreviewerState extends State<A4PdfPreviewer> {
 
       if (mounted) {
         setState(() {
-          _pdfController = PdfController(document: PdfDocument.openData(data));
+          _pdfData = data;
           _isLoading = false;
         });
       }
@@ -140,23 +141,12 @@ class _A4PdfPreviewerState extends State<A4PdfPreviewer> {
     }
   }
 
-  void _disposeController() {
-    _pdfController?.dispose();
-    _pdfController = null;
-  }
-
-  @override
-  void dispose() {
-    _disposeController();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator(strokeWidth: 2));
     }
-    if (_errorMessage != null || _pdfController == null) {
+    if (_errorMessage != null || _pdfData == null) {
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -175,11 +165,34 @@ class _A4PdfPreviewerState extends State<A4PdfPreviewer> {
         ),
       );
     }
-    return PdfView(
-      key: ValueKey(widget.cacheKey),
-      controller: _pdfController!,
-      scrollDirection: Axis.vertical,
-      backgroundDecoration: BoxDecoration(color: widget.backgroundColor),
+    return GestureDetector(
+      onDoubleTapDown: (details) {
+        if (_pdfController.isReady) {
+          final current = _pdfController.currentZoom;
+          final fit = _pdfController.alternativeFitScale ?? _pdfController.minScale;
+          final cover = _pdfController.coverScale;
+          if ((current - fit).abs() < 0.05) {
+            _pdfController.setZoom(details.localPosition, cover);
+          } else {
+            _pdfController.setZoom(details.localPosition, fit);
+          }
+        }
+      },
+      onDoubleTap: () {},
+      child: PdfViewer.data(
+        _pdfData!,
+        sourceName: widget.cacheKey,
+        key: ValueKey(widget.cacheKey),
+        controller: _pdfController,
+        params: PdfViewerParams(
+          textSelectionParams: const PdfTextSelectionParams(enabled: false),
+          sizeDelegateProvider: PdfViewerSizeDelegateProviderLegacy(
+            calculateInitialZoom: (doc, controller, altFitScale, coverScale) => altFitScale,
+          ),
+          backgroundColor: widget.backgroundColor,
+        ),
+      ),
     );
   }
 }
+

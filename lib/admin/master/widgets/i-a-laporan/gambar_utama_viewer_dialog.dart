@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:master_gambar/admin/master/models/g_gambar_utama.dart';
 import 'package:master_gambar/admin/master/repository/master_data_repository.dart';
-import 'package:pdfx/pdfx.dart';
+import 'package:pdfrx/pdfrx.dart';
 
 class GambarUtamaViewerDialog extends ConsumerStatefulWidget {
   final GGambarUtama gambarUtama;
@@ -155,6 +155,7 @@ class _PdfLazyViewer extends ConsumerStatefulWidget {
 
 class _PdfLazyViewerState extends ConsumerState<_PdfLazyViewer> {
   late final FutureProvider<Uint8List> _pdfDataProvider;
+  final _pdfController = PdfViewerController();
 
   @override
   void initState() {
@@ -175,8 +176,31 @@ class _PdfLazyViewerState extends ConsumerState<_PdfLazyViewer> {
     final pdfDataAsync = ref.watch(_pdfDataProvider);
 
     return pdfDataAsync.when(
-      data: (pdfData) => PdfView(
-        controller: PdfController(document: PdfDocument.openData(pdfData)),
+      data: (pdfData) => GestureDetector(
+        onDoubleTapDown: (details) {
+          if (_pdfController.isReady) {
+            final current = _pdfController.currentZoom;
+            final fit = _pdfController.alternativeFitScale ?? _pdfController.minScale;
+            final cover = _pdfController.coverScale;
+            if ((current - fit).abs() < 0.05) {
+              _pdfController.setZoom(details.localPosition, cover);
+            } else {
+              _pdfController.setZoom(details.localPosition, fit);
+            }
+          }
+        },
+        onDoubleTap: () {},
+        child: PdfViewer.data(
+          pdfData,
+          sourceName: widget.path ?? 'gambar_utama.pdf',
+          controller: _pdfController,
+          params: PdfViewerParams(
+            textSelectionParams: const PdfTextSelectionParams(enabled: false),
+            sizeDelegateProvider: PdfViewerSizeDelegateProviderLegacy(
+              calculateInitialZoom: (doc, controller, altFitScale, coverScale) => altFitScale,
+            ),
+          ),
+        ),
       ),
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (err, stack) => Center(

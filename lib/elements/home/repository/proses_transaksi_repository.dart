@@ -1,4 +1,4 @@
-// File: lib/elements/home/repository/proses_transaksi_repository.dart
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
@@ -15,6 +15,24 @@ final prosesTransaksiRepositoryProvider = Provider(
 class ProsesTransaksiRepository {
   final Ref _ref;
   ProsesTransaksiRepository(this._ref);
+
+  String _parseDioError(DioException e, String defaultPrefix) {
+    if (e.response != null && e.response?.data != null) {
+      try {
+        final data = e.response!.data;
+        if (data is List<int>) {
+          final decodedStr = utf8.decode(data);
+          final jsonMap = jsonDecode(decodedStr);
+          if (jsonMap is Map && jsonMap['message'] != null) {
+            return '$defaultPrefix: ${jsonMap['message']}';
+          }
+        } else if (data is Map && data['message'] != null) {
+          return '$defaultPrefix: ${data['message']}';
+        }
+      } catch (_) {}
+    }
+    return '$defaultPrefix: ${e.message}';
+  }
 
   Future<void> saveDraft({
     required String transaksiId,
@@ -57,6 +75,7 @@ class ProsesTransaksiRepository {
     required String transaksiId,
     int? pemeriksaId,
     required String pihakPenyetujuan,
+    List<Map<String, dynamic>>? dataGambarUtama,
     required List<int> varianBodyIds,
     required List<int> judulGambarIds,
     required List<int>? hGambarOptionalIds,
@@ -76,6 +95,7 @@ class ProsesTransaksiRepository {
             data: {
               'pemeriksa_id': pemeriksaId,
               'pihak_penyetujuan': pihakPenyetujuan,
+              if (dataGambarUtama != null) 'data_gambar_utama': dataGambarUtama,
               'varian_body_ids': varianBodyIds,
               'judul_gambar_ids': judulGambarIds,
               'h_gambar_optional_ids': hGambarOptionalIds,
@@ -91,7 +111,7 @@ class ProsesTransaksiRepository {
           );
       return response.data;
     } on DioException catch (e) {
-      throw Exception('Gagal memuat preview: ${e.message}');
+      throw Exception(_parseDioError(e, 'Gagal memuat preview'));
     }
   }
 

@@ -4,7 +4,6 @@ import 'dart:ui' show ImageFilter;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:pdfx/pdfx.dart';
 import 'package:master_gambar/data/models/skrb.dart';
 import '../providers/skrb_providers.dart';
 import '../repository/skrb_repository.dart';
@@ -91,7 +90,7 @@ class _DetailSkrbScreenState extends ConsumerState<DetailSkrbScreen> {
   bool _showPdfCard = false;
   bool _isLoadingPdf = false;
   String? _pdfCardTitle;
-  final List<PdfController> _pdfControllers = [];
+  final List<Uint8List> _pdfBytesList = [];
   String? _currentPreviewKey;
   bool _hasTriggeredBackgroundGambar = false;
   bool _hasAutoLoadedPreview = false;
@@ -138,14 +137,9 @@ class _DetailSkrbScreenState extends ConsumerState<DetailSkrbScreen> {
   }
 
   void _openInlinePdfPreview(List<Uint8List> bytesList, String title) {
-    for (var c in _pdfControllers) {
-      c.dispose();
-    }
-    _pdfControllers.clear();
+    _pdfBytesList.clear();
     setState(() {
-      for (var b in bytesList) {
-        _pdfControllers.add(PdfController(document: PdfDocument.openData(b)));
-      }
+      _pdfBytesList.addAll(bytesList);
       _pdfCardTitle = title;
       _isLoadingPdf = false;
       _showPdfCard = true;
@@ -153,10 +147,7 @@ class _DetailSkrbScreenState extends ConsumerState<DetailSkrbScreen> {
   }
 
   void _closeInlinePdfPreview() {
-    for (var c in _pdfControllers) {
-      c.dispose();
-    }
-    _pdfControllers.clear();
+    _pdfBytesList.clear();
     setState(() {
       _isLoadingPdf = false;
       _showPdfCard = false;
@@ -175,8 +166,10 @@ class _DetailSkrbScreenState extends ConsumerState<DetailSkrbScreen> {
       if (mounted &&
           _showPdfCard &&
           _currentPreviewKey == '1' &&
-          _pdfControllers.isNotEmpty) {
-        await _pdfControllers.first.loadDocument(PdfDocument.openData(bytes));
+          _pdfBytesList.isNotEmpty) {
+        setState(() {
+          _pdfBytesList[0] = bytes;
+        });
       }
     } catch (e) {
       // Abaikan error pada silent refresh
@@ -185,10 +178,7 @@ class _DetailSkrbScreenState extends ConsumerState<DetailSkrbScreen> {
 
   @override
   void dispose() {
-    for (var c in _pdfControllers) {
-      c.dispose();
-    }
-    _pdfControllers.clear();
+    _pdfBytesList.clear();
     super.dispose();
   }
 
@@ -290,7 +280,7 @@ class _DetailSkrbScreenState extends ConsumerState<DetailSkrbScreen> {
                       showPdfCard: _showPdfCard,
                       isLoadingPdf: _isLoadingPdf,
                       pdfCardTitle: _pdfCardTitle,
-                      pdfControllers: _pdfControllers,
+                      pdfBytesList: _pdfBytesList,
                       isProcessing: _isProcessing,
                       processingKey: _processingKey,
                       onClosePdfPreview: _closeInlinePdfPreview,
@@ -409,10 +399,7 @@ class _DetailSkrbScreenState extends ConsumerState<DetailSkrbScreen> {
 
   Future<void> _handlePreviewPdf(Skrb skrb, DocItem item) async {
     _currentPreviewKey = item.key;
-    for (var c in _pdfControllers) {
-      c.dispose();
-    }
-    _pdfControllers.clear();
+    _pdfBytesList.clear();
 
     final keyDisplay = _displayKey(item.key);
     final prefix = keyDisplay.isEmpty ? '' : '[$keyDisplay] ';

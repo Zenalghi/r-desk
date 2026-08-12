@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:pdfx/pdfx.dart';
+import 'package:pdfrx/pdfrx.dart';
 
 class PdfViewerDialog extends StatefulWidget {
   final Uint8List pdfData;
@@ -9,28 +9,26 @@ class PdfViewerDialog extends StatefulWidget {
   const PdfViewerDialog({
     super.key,
     required this.pdfData,
-    this.title = 'PDF Viewer',});
+    this.title = 'PDF Viewer',
+  });
 
   @override
   State<PdfViewerDialog> createState() => _PdfViewerDialogState();
 }
 
 class _PdfViewerDialogState extends State<PdfViewerDialog> {
-  late final PdfController _pdfController;
+  late final PdfViewerController _pdfController;
   int _currentPage = 1;
   int _totalPages = 0;
 
   @override
   void initState() {
     super.initState();
-    _pdfController = PdfController(
-      document: PdfDocument.openData(widget.pdfData),
-    );
+    _pdfController = PdfViewerController();
   }
 
   @override
   void dispose() {
-    _pdfController.dispose();
     super.dispose();
   }
 
@@ -47,19 +45,43 @@ class _PdfViewerDialogState extends State<PdfViewerDialog> {
       content: SizedBox(
         width: MediaQuery.of(context).size.width * 0.8,
         height: MediaQuery.of(context).size.height * 0.8,
-        child: PdfView(
-          controller: _pdfController,
-          scrollDirection: Axis.vertical,
-          onDocumentLoaded: (document) {
-            setState(() {
-              _totalPages = document.pagesCount;
-            });
+        child: GestureDetector(
+          onDoubleTapDown: (details) {
+            if (_pdfController.isReady) {
+              final current = _pdfController.currentZoom;
+              final fit = _pdfController.alternativeFitScale ?? _pdfController.minScale;
+              final cover = _pdfController.coverScale;
+              if ((current - fit).abs() < 0.05) {
+                _pdfController.setZoom(details.localPosition, cover);
+              } else {
+                _pdfController.setZoom(details.localPosition, fit);
+              }
+            }
           },
-          onPageChanged: (page) {
-            setState(() {
-              _currentPage = page;
-            });
-          },
+          onDoubleTap: () {},
+          child: PdfViewer.data(
+            widget.pdfData,
+            sourceName: widget.title,
+            controller: _pdfController,
+            params: PdfViewerParams(
+              textSelectionParams: const PdfTextSelectionParams(enabled: false),
+              sizeDelegateProvider: PdfViewerSizeDelegateProviderLegacy(
+                calculateInitialZoom: (doc, controller, altFitScale, coverScale) => altFitScale,
+              ),
+              onViewerReady: (document, controller) {
+                setState(() {
+                  _totalPages = document.pages.length;
+                });
+              },
+              onPageChanged: (page) {
+                if (page != null) {
+                  setState(() {
+                    _currentPage = page;
+                  });
+                }
+              },
+            ),
+          ),
         ),
       ),
       actions: [
@@ -70,10 +92,7 @@ class _PdfViewerDialogState extends State<PdfViewerDialog> {
               icon: const Icon(Icons.arrow_back_ios_new, size: 18),
               tooltip: 'Halaman Sebelumnya',
               onPressed: _currentPage > 1
-                  ? () => _pdfController.previousPage(
-                        duration: const Duration(milliseconds: 250),
-                        curve: Curves.easeInOut,
-                      )
+                  ? () => _pdfController.goToPage(pageNumber: _currentPage - 1)
                   : null,
             ),
             const SizedBox(width: 4),
@@ -91,10 +110,7 @@ class _PdfViewerDialogState extends State<PdfViewerDialog> {
               icon: const Icon(Icons.arrow_forward_ios, size: 18),
               tooltip: 'Halaman Berikutnya',
               onPressed: _currentPage < _totalPages
-                  ? () => _pdfController.nextPage(
-                        duration: const Duration(milliseconds: 250),
-                        curve: Curves.easeInOut,
-                      )
+                  ? () => _pdfController.goToPage(pageNumber: _currentPage + 1)
                   : null,
             ),
             const SizedBox(width: 20),
@@ -108,3 +124,4 @@ class _PdfViewerDialogState extends State<PdfViewerDialog> {
     );
   }
 }
+

@@ -255,6 +255,33 @@ class _InputGambarScreenState extends ConsumerState<InputGambarScreen> {
 
       final dependentOptionalIds = ref.read(activeDependentOptionalIdsProvider);
 
+      final bool isEditMode = ref.read(isEditModeProvider);
+
+      List<Map<String, dynamic>> dataGambarUtama = selections
+          .where((s) => s.varianBodyId != null && s.judulId != null)
+          .map((s) => {'judul_id': s.judulId, 'varian_id': s.varianBodyId})
+          .toList();
+
+      // Jika dalam Mode Edit atau detail belum tersimpan di DB, update draft ke DB sebelum preview
+      if (isEditMode || !_hasSavedData) {
+        await ref.read(prosesTransaksiRepositoryProvider).saveDraft(
+              pihakPenyetujuan: pihakPenyetujuan,
+              transaksiId: widget.transaksi!.id,
+              pemeriksaId: pemeriksaId,
+              jumlahGambar: ref.read(jumlahGambarProvider),
+              dataGambarUtama: dataGambarUtama,
+              orderedIndependentIds: orderedIndependentIds,
+              deskripsiOptional: deskripsiOptional,
+              descSpace: ref.read(descSpaceProvider),
+              iGambarKelistrikanId: kelistrikanId,
+            );
+        if (mounted) {
+          setState(() {
+            _hasSavedData = true;
+          });
+        }
+      }
+
       int finalPageNumber = pageNumber;
       if (!hasVarianBody) {
         final jumlahGambarUtama = ref.read(jumlahGambarProvider);
@@ -268,6 +295,7 @@ class _InputGambarScreenState extends ConsumerState<InputGambarScreen> {
           .read(prosesTransaksiRepositoryProvider)
           .getPreviewPdf(
             pihakPenyetujuan: pihakPenyetujuan, // <-- KIRIM PIHAK PENYETUJUAN
+            dataGambarUtama: dataGambarUtama,
             orderedIndependentIds: orderedIndependentIds,
             transaksiId: widget.transaksi!.id,
             pemeriksaId: pemeriksaId, // Sekarang boleh null

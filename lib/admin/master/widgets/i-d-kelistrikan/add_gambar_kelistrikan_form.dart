@@ -11,7 +11,7 @@ import 'package:flutter_riverpod/misc.dart';
 import 'package:master_gambar/admin/master/providers/master_data_providers.dart';
 import 'package:master_gambar/admin/master/repository/master_data_repository.dart';
 import 'package:master_gambar/data/models/option_item.dart';
-import 'package:pdfx/pdfx.dart';
+import 'package:pdfrx/pdfrx.dart';
 
 class AddGambarKelistrikanForm extends ConsumerStatefulWidget {
   final OptionItem? initialTypeEngine;
@@ -44,7 +44,8 @@ class _AddGambarKelistrikanFormState
   OptionItem? _initialChassisObj;
 
   PdfFileData? _selectedFile;
-  PdfController? _pdfController;
+  Uint8List? _pdfPreviewBytes;
+  final _pdfController = PdfViewerController();
   bool _isUploading = false;
   static const int _maxFileSize = 1024 * 1024;
 
@@ -84,8 +85,7 @@ class _AddGambarKelistrikanFormState
     } else {
       _loadedEditPdfId = null;
       _selectedFile = null;
-      _pdfController?.dispose();
-      _pdfController = null;
+      _pdfPreviewBytes = null;
     }
   }
 
@@ -107,7 +107,6 @@ class _AddGambarKelistrikanFormState
 
   @override
   void dispose() {
-    _pdfController?.dispose();
     super.dispose();
   }
 
@@ -115,8 +114,12 @@ class _AddGambarKelistrikanFormState
 
   void _cancelEdit() {
     ref.read(editingKelistrikanFileProvider.notifier).state = null;
+    _resetForm();
+  }
 
+  void _resetForm() {
     setState(() {
+      _formKey.currentState?.reset();
       _selectedTypeEngineId = null;
       _selectedMerkId = null;
       _selectedTypeChassisId = null;
@@ -125,8 +128,7 @@ class _AddGambarKelistrikanFormState
       _initialChassisObj = null;
       _selectedFile = null;
       _loadedEditPdfId = null;
-      _pdfController?.dispose();
-      _pdfController = null;
+      _pdfPreviewBytes = null;
     });
   }
 
@@ -141,8 +143,7 @@ class _AddGambarKelistrikanFormState
     _loadedEditPdfId = id;
 
     setState(() {
-      _pdfController?.dispose();
-      _pdfController = null;
+      _pdfPreviewBytes = null;
     });
 
     try {
@@ -156,9 +157,7 @@ class _AddGambarKelistrikanFormState
 
       final bytesCopy = Uint8List.fromList(pdfBytes);
       setState(() {
-        _pdfController = PdfController(
-          document: PdfDocument.openData(bytesCopy),
-        );
+        _pdfPreviewBytes = bytesCopy;
       });
     } catch (e) {
       if (!mounted || _loadedEditPdfId != id) {
@@ -214,14 +213,9 @@ class _AddGambarKelistrikanFormState
             bytes: fileBytes!,
             size: file.size,
           );
-          _pdfController?.dispose();
 
-          // --- PERBAIKAN FLUTTER WEB: COPY BYTES ---
           final bytesCopy = Uint8List.fromList(fileBytes);
-
-          _pdfController = PdfController(
-            document: PdfDocument.openData(bytesCopy),
-          );
+          _pdfPreviewBytes = bytesCopy;
         });
       }
     }
@@ -477,8 +471,34 @@ class _AddGambarKelistrikanFormState
                       color: colorScheme.surfaceContainerLow,
                       borderRadius: BorderRadius.circular(4),
                     ),
-                    child: _pdfController != null
-                        ? PdfView(controller: _pdfController!)
+                    child: _pdfPreviewBytes != null
+                        ? GestureDetector(
+                            onDoubleTapDown: (details) {
+                              if (_pdfController.isReady) {
+                                final current = _pdfController.currentZoom;
+                                final fit = _pdfController.alternativeFitScale ?? _pdfController.minScale;
+                                final cover = _pdfController.coverScale;
+                                if ((current - fit).abs() < 0.05) {
+                                  _pdfController.setZoom(details.localPosition, cover);
+                                } else {
+                                  _pdfController.setZoom(details.localPosition, fit);
+                                }
+                              }
+                            },
+                            onDoubleTap: () {},
+                            child: PdfViewer.data(
+                              _pdfPreviewBytes!,
+                              sourceName: _selectedFile?.name ?? 'kelistrikan.pdf',
+                              key: ValueKey(_pdfPreviewBytes.hashCode),
+                              controller: _pdfController,
+                              params: PdfViewerParams(
+                                textSelectionParams: const PdfTextSelectionParams(enabled: false),
+                                sizeDelegateProvider: PdfViewerSizeDelegateProviderLegacy(
+                                  calculateInitialZoom: (doc, controller, altFitScale, coverScale) => altFitScale,
+                                ),
+                              ),
+                            ),
+                          )
                         : Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,

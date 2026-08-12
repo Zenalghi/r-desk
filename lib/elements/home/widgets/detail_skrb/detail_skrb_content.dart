@@ -1,7 +1,7 @@
 // File: lib/elements/home/widgets/detail_skrb/detail_skrb_content.dart
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:pdfx/pdfx.dart';
 import 'package:master_gambar/data/models/skrb.dart';
 import '../../providers/page_state_provider.dart';
 import '../../providers/skrb_providers.dart';
@@ -15,7 +15,7 @@ class DetailSkrbContent extends ConsumerWidget {
   final bool showPdfCard;
   final bool isLoadingPdf;
   final String? pdfCardTitle;
-  final List<PdfController> pdfControllers;
+  final List<Uint8List> pdfBytesList;
   final bool isProcessing;
   final String? processingKey;
   final VoidCallback onClosePdfPreview;
@@ -34,7 +34,7 @@ class DetailSkrbContent extends ConsumerWidget {
     required this.showPdfCard,
     required this.isLoadingPdf,
     required this.pdfCardTitle,
-    required this.pdfControllers,
+    required this.pdfBytesList,
     required this.isProcessing,
     required this.processingKey,
     required this.onClosePdfPreview,
@@ -201,13 +201,13 @@ class DetailSkrbContent extends ConsumerWidget {
                       ),
                     ),
                     if (showPdfCard &&
-                        (isLoadingPdf || pdfControllers.isNotEmpty)) ...[
+                        (isLoadingPdf || pdfBytesList.isNotEmpty)) ...[
                       const SizedBox(width: 12),
                       DetailSkrbPdfPreview(
                         showPdfCard: showPdfCard,
                         isLoadingPdf: isLoadingPdf,
                         pdfCardTitle: pdfCardTitle,
-                        pdfControllers: pdfControllers,
+                        pdfBytesList: pdfBytesList,
                         onClose: onClosePdfPreview,
                       ),
                     ],

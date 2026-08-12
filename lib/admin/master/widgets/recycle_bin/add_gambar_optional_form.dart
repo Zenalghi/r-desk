@@ -3,7 +3,7 @@
 // import 'package:flutter_riverpod/flutter_riverpod.dart';
 // import 'package:file_picker/file_picker.dart';
 // import 'package:master_gambar/admin/master/providers/master_data_providers.dart';
-// import 'package:pdfx/pdfx.dart';
+// import 'package:pdfrx/pdfrx.dart';
 
 // class AddGambarOptionalForm extends ConsumerStatefulWidget {
 //   final Function(int varianBodyId, String deskripsi, File file) onUpload;
