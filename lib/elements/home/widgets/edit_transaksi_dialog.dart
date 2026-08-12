@@ -163,6 +163,7 @@ class _EditTransaksiDialogState extends ConsumerState<EditTransaksiDialog> {
   Widget build(BuildContext context) {
     final authService = ref.watch(authServiceProvider);
     final isAdmin = authService.canViewAdminTabs();
+    final isSaved = widget.transaksi.detail != null;
 
     return AlertDialog(
       title: Text('Edit Transaksi: ${widget.transaksi.id}'),
@@ -175,8 +176,44 @@ class _EditTransaksiDialogState extends ConsumerState<EditTransaksiDialog> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                if (isSaved) ...[
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.shade50,
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: Colors.orange.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          size: 16,
+                          color: Colors.orange.shade800,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Customer dan Kendaraan tidak dapat diubah karena detail transaksi sudah dibuat.',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.orange.shade900,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+
                 // 1. CUSTOMER (SEARCHABLE)
                 DropdownSearch<OptionItem>(
+                  enabled: !isSaved,
                   items: (String filter, _) =>
                       ref.read(customerOptionsSearchProvider(filter).future),
                   itemAsString: (OptionItem item) => item.name,
@@ -252,6 +289,7 @@ class _EditTransaksiDialogState extends ConsumerState<EditTransaksiDialog> {
 
                 // 2. MASTER DATA (DropdownSearch)
                 DropdownSearch<OptionItem>(
+                  enabled: !isSaved,
                   items: (String filter, _) => ref.read(
                     transaksiMasterDataOptionsProvider(filter).future,
                   ),
