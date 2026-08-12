@@ -195,6 +195,9 @@ class _EditSkrbDialogState extends ConsumerState<EditSkrbDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final hasIdDwg = widget.skrb.transaksiId.trim().isNotEmpty;
+    final isCustomerAndMasterDataDisabled = hasIdDwg || widget.skrb.fase == 2;
+
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
@@ -224,6 +227,43 @@ class _EditSkrbDialogState extends ConsumerState<EditSkrbDialog> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                if (isCustomerAndMasterDataDisabled) ...[
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.shade50,
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: Colors.orange.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.info_outline,
+                          size: 16,
+                          color: Colors.orange.shade800,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            hasIdDwg
+                                ? 'Customer dan Master Data tidak dapat diubah karena Permohonan terikat dengan ID DWG (${widget.skrb.transaksiId}).'
+                                : 'Customer dan Master Data tidak dapat diubah karena sudah disimpan.',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: Colors.orange.shade900,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+
                 // Info SKRB
                 Container(
                   padding: const EdgeInsets.symmetric(
@@ -275,6 +315,7 @@ class _EditSkrbDialogState extends ConsumerState<EditSkrbDialog> {
 
                 // 1. CUSTOMER
                 DropdownSearch<OptionItem>(
+                  enabled: !isCustomerAndMasterDataDisabled,
                   items: (String filter, _) =>
                       ref.read(customerOptionsSearchProvider(filter).future),
                   itemAsString: (OptionItem item) => item.name,
@@ -351,6 +392,7 @@ class _EditSkrbDialogState extends ConsumerState<EditSkrbDialog> {
 
                 // 2. MASTER DATA KENDARAAN
                 DropdownSearch<OptionItem>(
+                  enabled: !isCustomerAndMasterDataDisabled,
                   items: (String filter, _) =>
                       ref.read(transaksiMasterDataOptionsProvider(filter).future),
                   itemAsString: (OptionItem item) => item.name,
