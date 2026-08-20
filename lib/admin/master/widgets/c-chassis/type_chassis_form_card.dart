@@ -235,7 +235,7 @@ class _TypeChassisFormCardState extends ConsumerState<TypeChassisFormCard> {
                 child: TextFormField(
                   style: const TextStyle(fontSize: 14),
                   controller: _merekDagangController,
-                  textCapitalization: TextCapitalization.characters,
+                  // textCapitalization: TextCapitalization.words,
                   decoration: const InputDecoration(
                     labelStyle: TextStyle(fontSize: 14),
                     labelText: 'Merek Dagang (Opsional)',

@@ -249,7 +249,7 @@ class _EditTypeChassisDialogState extends ConsumerState<EditTypeChassisDialog> {
               const SizedBox(height: 15),
               TextFormField(
                 controller: _merekDagangController,
-                textCapitalization: TextCapitalization.characters,
+                // textCapitalization: TextCapitalization.words,
                 decoration: const InputDecoration(
                   labelText: 'Merek Dagang (Opsional)',
                 ),
