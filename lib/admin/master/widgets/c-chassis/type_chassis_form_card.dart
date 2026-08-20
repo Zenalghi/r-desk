@@ -18,6 +18,7 @@ class TypeChassisFormCard extends ConsumerStatefulWidget {
 
 class _TypeChassisFormCardState extends ConsumerState<TypeChassisFormCard> {
   final _chassisController = TextEditingController();
+  final _nomorSutController = TextEditingController();
   final _merekDagangController = TextEditingController();
   final _jenisTipeController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -27,6 +28,7 @@ class _TypeChassisFormCardState extends ConsumerState<TypeChassisFormCard> {
   @override
   void dispose() {
     _chassisController.dispose();
+    _nomorSutController.dispose();
     _merekDagangController.dispose();
     _jenisTipeController.dispose();
     super.dispose();
@@ -161,11 +163,13 @@ class _TypeChassisFormCardState extends ConsumerState<TypeChassisFormCard> {
           .read(masterDataRepositoryProvider)
           .addTypeChassis(
             typeChassis: _chassisController.text,
+            nomorSut: _nomorSutController.text,
             merekDagang: _merekDagangController.text,
             jenisTipe: _jenisTipeController.text,
             sutPdfFile: _sutPdfFile,
           );
       _chassisController.clear();
+      _nomorSutController.clear();
       _merekDagangController.clear();
       _jenisTipeController.clear();
       setState(() {
@@ -234,8 +238,21 @@ class _TypeChassisFormCardState extends ConsumerState<TypeChassisFormCard> {
               Expanded(
                 child: TextFormField(
                   style: const TextStyle(fontSize: 14),
+                  controller: _nomorSutController,
+                  textCapitalization: TextCapitalization.characters,
+                  decoration: const InputDecoration(
+                    labelStyle: TextStyle(fontSize: 14),
+                    labelText: 'Nomor SUT (Opsional)',
+                    hintText: 'Contoh: 1234/SUT/2026',
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: TextFormField(
+                  style: const TextStyle(fontSize: 14),
                   controller: _merekDagangController,
-                  // textCapitalization: TextCapitalization.words,
+                  textCapitalization: TextCapitalization.words,
                   decoration: const InputDecoration(
                     labelStyle: TextStyle(fontSize: 14),
                     labelText: 'Merek Dagang (Opsional)',

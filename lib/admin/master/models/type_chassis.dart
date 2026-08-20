@@ -8,6 +8,7 @@ class TypeChassis {
   final DateTime createdAt;
   final DateTime updatedAt;
   final String? sutPdfPath;
+  final String? nomorSut;
   final String? merekDagang;
   final String? jenisTipe;
 
@@ -24,6 +25,7 @@ class TypeChassis {
     required this.createdAt,
     required this.updatedAt,
     this.sutPdfPath,
+    this.nomorSut,
     this.merekDagang,
     this.jenisTipe,
     this.merk,
@@ -36,6 +38,7 @@ class TypeChassis {
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),
       sutPdfPath: json['sut_file'] ?? json['sut_pdf_path'],
+      nomorSut: json['nomor_sut'],
       merekDagang: json['merek_dagang'],
       jenisTipe: json['jenis_tipe'],
       // Cek apakah ada key 'merk' di dalam JSON chassis

@@ -273,12 +273,15 @@ class MasterDataRepository {
 
   Future<TypeChassis> addTypeChassis({
     required String typeChassis,
+    String? nomorSut,
     String? merekDagang,
     String? jenisTipe,
     PlatformFile? sutPdfFile,
   }) async {
     final Map<String, dynamic> dataMap = {
       'type_chassis': typeChassis,
+      if (nomorSut != null && nomorSut.trim().isNotEmpty)
+        'nomor_sut': nomorSut.trim(),
       if (merekDagang != null && merekDagang.trim().isNotEmpty)
         'merek_dagang': merekDagang.trim(),
       if (jenisTipe != null && jenisTipe.trim().isNotEmpty)
@@ -301,6 +304,7 @@ class MasterDataRepository {
   Future<TypeChassis> updateTypeChassis({
     required int id,
     required String typeChassis,
+    String? nomorSut,
     String? merekDagang,
     String? jenisTipe,
     PlatformFile? sutPdfFile,
@@ -308,6 +312,7 @@ class MasterDataRepository {
   }) async {
     final Map<String, dynamic> dataMap = {
       'type_chassis': typeChassis,
+      'nomor_sut': nomorSut ?? '',
       'merek_dagang': merekDagang ?? '',
       'jenis_tipe': jenisTipe ?? '',
       '_method': 'PUT',
@@ -364,6 +369,87 @@ class MasterDataRepository {
         .delete('/admin/type-chassis/$id/force-delete');
   }
 
+  Future<String?> exportTypeChassisExcel() async {
+    final now = DateTime.now();
+    final timeStr =
+        '${now.year}'
+        '${now.month.toString().padLeft(2, '0')}'
+        '${now.day.toString().padLeft(2, '0')}_'
+        '${now.hour.toString().padLeft(2, '0')}'
+        '${now.minute.toString().padLeft(2, '0')}'
+        '${now.second.toString().padLeft(2, '0')}';
+    final String? outputPath = await FilePicker.platform.saveFile(
+      dialogTitle: 'Simpan Export Excel Master Type Chassis...',
+      fileName: 'Master_Type_Chassis_$timeStr.xlsx',
+      allowedExtensions: ['xlsx'],
+      type: FileType.custom,
+    );
+
+    if (outputPath == null) {
+      return null;
+    }
+
+    final response = await _ref
+        .read(apiClientProvider)
+        .dio
+        .get(
+          '/type-chassis/export-excel',
+          options: Options(
+            responseType: ResponseType.bytes,
+            receiveTimeout: const Duration(minutes: 5),
+          ),
+        );
+
+    await File(outputPath).writeAsBytes(response.data);
+    return outputPath;
+  }
+
+  Future<Map<String, dynamic>?> importTypeChassisExcel() async {
+    final result = await FilePicker.platform.pickFiles(
+      dialogTitle: 'Pilih File Excel / CSV untuk Diimport...',
+      type: FileType.custom,
+      allowedExtensions: ['xlsx', 'xls', 'csv'],
+      withData: true,
+    );
+
+    if (result == null || result.files.isEmpty) {
+      return null;
+    }
+
+    final file = result.files.single;
+    final Uint8List? bytes =
+        file.bytes ??
+        (file.path != null ? await File(file.path!).readAsBytes() : null);
+
+    if (bytes == null) {
+      throw Exception('Gagal membaca data file Excel.');
+    }
+
+    final formData = FormData.fromMap({
+      'file': MultipartFile.fromBytes(
+        bytes,
+        filename: file.name,
+        contentType: file.name.endsWith('.csv')
+            ? MediaType('text', 'csv')
+            : MediaType(
+                'application',
+                'vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+              ),
+      ),
+    });
+
+    final response = await _ref
+        .read(apiClientProvider)
+        .dio
+        .post(
+          '/type-chassis/import-excel',
+          data: formData,
+          options: Options(receiveTimeout: const Duration(minutes: 5)),
+        );
+
+    return response.data as Map<String, dynamic>;
+  }
+
   // == JENIS KENDARAAN (PAGINATED) ==
   Future<PaginatedResponse<JenisKendaraan>> getJenisKendaraanListPaginated({
     int page = 1,
@@ -404,11 +490,14 @@ class MasterDataRepository {
     final response = await _ref
         .read(apiClientProvider)
         .dio
-        .post('/jenis-kendaraan', data: {
-          'jenis_kendaraan': jenisKendaraan,
-          if (aliasKendaraan != null && aliasKendaraan.trim().isNotEmpty)
-            'alias_kendaraan': aliasKendaraan.trim(),
-        });
+        .post(
+          '/jenis-kendaraan',
+          data: {
+            'jenis_kendaraan': jenisKendaraan,
+            if (aliasKendaraan != null && aliasKendaraan.trim().isNotEmpty)
+              'alias_kendaraan': aliasKendaraan.trim(),
+          },
+        );
     return JenisKendaraan.fromJson(response.data);
   }
 
@@ -420,10 +509,13 @@ class MasterDataRepository {
     final response = await _ref
         .read(apiClientProvider)
         .dio
-        .put('/jenis-kendaraan/$id', data: {
-          'jenis_kendaraan': jenisKendaraan,
-          'alias_kendaraan': aliasKendaraan ?? '',
-        });
+        .put(
+          '/jenis-kendaraan/$id',
+          data: {
+            'jenis_kendaraan': jenisKendaraan,
+            'alias_kendaraan': aliasKendaraan ?? '',
+          },
+        );
     return JenisKendaraan.fromJson(response.data);
   }
 
@@ -600,7 +692,8 @@ class MasterDataRepository {
 
     final file = result.files.single;
     final Uint8List? bytes =
-        file.bytes ?? (file.path != null ? await File(file.path!).readAsBytes() : null);
+        file.bytes ??
+        (file.path != null ? await File(file.path!).readAsBytes() : null);
 
     if (bytes == null) {
       throw Exception('Gagal membaca data file Excel.');
@@ -612,7 +705,10 @@ class MasterDataRepository {
         filename: file.name,
         contentType: file.name.endsWith('.csv')
             ? MediaType('text', 'csv')
-            : MediaType('application', 'vnd.openxmlformats-officedocument.spreadsheetml.sheet'),
+            : MediaType(
+                'application',
+                'vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+              ),
       ),
     });
 
@@ -622,9 +718,7 @@ class MasterDataRepository {
         .post(
           '/admin/master-varian/import-excel',
           data: formData,
-          options: Options(
-            receiveTimeout: const Duration(minutes: 5),
-          ),
+          options: Options(receiveTimeout: const Duration(minutes: 5)),
         );
 
     return response.data as Map<String, dynamic>;
@@ -778,7 +872,8 @@ class MasterDataRepository {
 
     final file = result.files.single;
     final Uint8List? bytes =
-        file.bytes ?? (file.path != null ? await File(file.path!).readAsBytes() : null);
+        file.bytes ??
+        (file.path != null ? await File(file.path!).readAsBytes() : null);
 
     if (bytes == null) {
       throw Exception('Gagal membaca data file Excel.');
@@ -790,7 +885,10 @@ class MasterDataRepository {
         filename: file.name,
         contentType: file.name.endsWith('.csv')
             ? MediaType('text', 'csv')
-            : MediaType('application', 'vnd.openxmlformats-officedocument.spreadsheetml.sheet'),
+            : MediaType(
+                'application',
+                'vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+              ),
       ),
     });
 
@@ -800,9 +898,7 @@ class MasterDataRepository {
         .post(
           '/admin/varian-body/import-excel',
           data: formData,
-          options: Options(
-            receiveTimeout: const Duration(minutes: 5),
-          ),
+          options: Options(receiveTimeout: const Duration(minutes: 5)),
         );
 
     return response.data as Map<String, dynamic>;

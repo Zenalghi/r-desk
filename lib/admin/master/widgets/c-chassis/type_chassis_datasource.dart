@@ -42,6 +42,7 @@ class TypeChassisDataSource extends AsyncDataTableSource {
             cells: [
               DataCell(SelectableText(item.id.toString())),
               DataCell(SelectableText(item.name)),
+              DataCell(SelectableText(item.nomorSut ?? '-')),
               DataCell(SelectableText(item.merekDagang ?? '-')),
               DataCell(SelectableText(item.jenisTipe ?? '-')),
               // DataCell(SelectableText('${item.merk.name} (${item.merk.id})')),

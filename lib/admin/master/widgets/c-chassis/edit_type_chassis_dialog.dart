@@ -28,6 +28,7 @@ class EditTypeChassisDialog extends ConsumerStatefulWidget {
 
 class _EditTypeChassisDialogState extends ConsumerState<EditTypeChassisDialog> {
   late TextEditingController _controller;
+  late TextEditingController _nomorSutController;
   late TextEditingController _merekDagangController;
   late TextEditingController _jenisTipeController;
   PlatformFile? _newPdfFile;
@@ -38,6 +39,9 @@ class _EditTypeChassisDialogState extends ConsumerState<EditTypeChassisDialog> {
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.item.name);
+    _nomorSutController = TextEditingController(
+      text: widget.item.nomorSut ?? '',
+    );
     _merekDagangController = TextEditingController(
       text: widget.item.merekDagang ?? '',
     );
@@ -49,6 +53,7 @@ class _EditTypeChassisDialogState extends ConsumerState<EditTypeChassisDialog> {
   @override
   void dispose() {
     _controller.dispose();
+    _nomorSutController.dispose();
     _merekDagangController.dispose();
     _jenisTipeController.dispose();
     super.dispose();
@@ -248,8 +253,16 @@ class _EditTypeChassisDialogState extends ConsumerState<EditTypeChassisDialog> {
               ),
               const SizedBox(height: 15),
               TextFormField(
+                controller: _nomorSutController,
+                textCapitalization: TextCapitalization.characters,
+                decoration: const InputDecoration(
+                  labelText: 'Nomor SUT (Opsional)',
+                ),
+              ),
+              const SizedBox(height: 15),
+              TextFormField(
                 controller: _merekDagangController,
-                // textCapitalization: TextCapitalization.words,
+                textCapitalization: TextCapitalization.words,
                 decoration: const InputDecoration(
                   labelText: 'Merek Dagang (Opsional)',
                 ),
@@ -403,6 +416,7 @@ class _EditTypeChassisDialogState extends ConsumerState<EditTypeChassisDialog> {
                         .updateTypeChassis(
                           id: widget.item.id,
                           typeChassis: _controller.text,
+                          nomorSut: _nomorSutController.text,
                           merekDagang: _merekDagangController.text,
                           jenisTipe: _jenisTipeController.text,
                           sutPdfFile: _newPdfFile,

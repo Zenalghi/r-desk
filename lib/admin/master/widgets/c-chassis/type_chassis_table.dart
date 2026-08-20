@@ -57,10 +57,11 @@ class _TypeChassisTableState extends ConsumerState<TypeChassisTable> {
       final Map<int, String> columnMapping = {
         0: 'id',
         1: 'type_chassis',
-        2: 'merek_dagang',
-        3: 'jenis_tipe',
-        4: 'created_at',
-        5: 'updated_at',
+        2: 'nomor_sut',
+        3: 'merek_dagang',
+        4: 'jenis_tipe',
+        5: 'created_at',
+        6: 'updated_at',
       };
       return {
         ...state,
@@ -79,6 +80,11 @@ class _TypeChassisTableState extends ConsumerState<TypeChassisTable> {
         onSort: _onSort,
       ),
       DataColumn2(
+        label: const Text('Nomor SUT'),
+        size: ColumnSize.M,
+        onSort: _onSort,
+      ),
+      DataColumn2(
         label: const Text('Merek Dagang'),
         size: ColumnSize.M,
         onSort: _onSort,
@@ -90,12 +96,12 @@ class _TypeChassisTableState extends ConsumerState<TypeChassisTable> {
       ),
       DataColumn2(
         label: const Text('Created At'),
-        size: ColumnSize.M,
+        fixedWidth: 120,
         onSort: _onSort,
       ),
       DataColumn2(
         label: const Text('Updated At'),
-        size: ColumnSize.M,
+        fixedWidth: 120,
         onSort: _onSort,
       ),
       const DataColumn2(label: Text('Options'), fixedWidth: 280),
