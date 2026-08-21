@@ -143,6 +143,7 @@ class CTypeChassis {
   final String id;
   final String typeChassis;
   final String? merekDagang;
+  final String? nomorSut;
   final String? jenisTipe;
 
   String get displayName => (merekDagang != null && merekDagang!.trim().isNotEmpty)
@@ -153,6 +154,7 @@ class CTypeChassis {
     required this.id,
     required this.typeChassis,
     this.merekDagang,
+    this.nomorSut,
     this.jenisTipe,
   });
 
@@ -160,6 +162,7 @@ class CTypeChassis {
     id: json['id'].toString(),
     typeChassis: (json['type_chassis'] ?? '').toString(),
     merekDagang: json['merek_dagang']?.toString(),
+    nomorSut: json['nomor_sut']?.toString(),
     jenisTipe: json['jenis_tipe']?.toString(),
   );
 }

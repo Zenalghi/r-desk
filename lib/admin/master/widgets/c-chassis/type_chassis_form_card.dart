@@ -217,6 +217,7 @@ class _TypeChassisFormCardState extends ConsumerState<TypeChassisFormCard> {
           child: Row(
             children: [
               Expanded(
+                flex: 4,
                 child: TextFormField(
                   style: const TextStyle(fontSize: 14),
                   controller: _chassisController,
@@ -236,6 +237,7 @@ class _TypeChassisFormCardState extends ConsumerState<TypeChassisFormCard> {
               ),
               const SizedBox(width: 12),
               Expanded(
+                flex: 2,
                 child: TextFormField(
                   style: const TextStyle(fontSize: 14),
                   controller: _nomorSutController,
@@ -249,6 +251,7 @@ class _TypeChassisFormCardState extends ConsumerState<TypeChassisFormCard> {
               ),
               const SizedBox(width: 12),
               Expanded(
+                flex: 2,
                 child: TextFormField(
                   style: const TextStyle(fontSize: 14),
                   controller: _merekDagangController,
@@ -262,6 +265,7 @@ class _TypeChassisFormCardState extends ConsumerState<TypeChassisFormCard> {
               ),
               const SizedBox(width: 12),
               Expanded(
+                flex: 2,
                 child: TextFormField(
                   style: const TextStyle(fontSize: 14),
                   controller: _jenisTipeController,
@@ -277,7 +281,7 @@ class _TypeChassisFormCardState extends ConsumerState<TypeChassisFormCard> {
               if (_sutPdfFile == null)
                 ElevatedButton.icon(
                   icon: const Icon(Icons.picture_as_pdf, color: Colors.indigo),
-                  label: const Text('Input PDF SUT'),
+                  label: const Text('Input SUT'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.indigo.shade50,
                     foregroundColor: Colors.indigo.shade900,

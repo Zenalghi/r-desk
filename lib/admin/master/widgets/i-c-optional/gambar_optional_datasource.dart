@@ -55,6 +55,7 @@ class GambarOptionalDataSource extends AsyncDataTableSource {
                   style: AppTextStyles.dynamicSize(md?.typeChassis.displayName ?? ''),
                 ),
               ),
+              DataCell(SelectableText(md?.typeChassis.nomorSut ?? '-')),
               DataCell(SelectableText(md?.jenisKendaraan.name ?? '-')),
 
               // HAPUS CELL VARIAN BODY & TIPE

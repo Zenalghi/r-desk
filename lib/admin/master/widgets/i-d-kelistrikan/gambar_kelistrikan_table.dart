@@ -80,8 +80,9 @@ class _GambarKelistrikanTableState
       1: 'type_engine', // Backend: 'type_engine' => 'a_type_engines.type_engine'
       2: 'merk', // Backend: 'merk' => 'b_merks.merk'
       3: 'type_chassis', // Backend: 'type_chassis' => 'c_type_chassis.type_chassis'
-      4: 'created_at',
-      5: 'updated_at',
+      4: 'nomor_sut',
+      5: 'created_at',
+      6: 'updated_at',
     };
 
     ref
@@ -111,6 +112,11 @@ class _GambarKelistrikanTableState
       DataColumn2(
         label: const Text('Type Chassis'),
         size: ColumnSize.L,
+        onSort: _onSort,
+      ),
+      DataColumn2(
+        label: const Text('Nomor SUT'),
+        size: ColumnSize.M,
         onSort: _onSort,
       ),
       DataColumn2(

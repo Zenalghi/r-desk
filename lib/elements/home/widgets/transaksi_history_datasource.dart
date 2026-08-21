@@ -60,7 +60,12 @@ class TransaksiDataSource extends AsyncDataTableSource {
               // 3. Merk
               DataCell(SelectableText(trx.bMerk.merk)),
               // 4. Chassis
-              DataCell(SelectableText(trx.cTypeChassis.displayName)),
+              DataCell(
+                Tooltip(
+                  message: 'Nomor SUT: ${trx.cTypeChassis.nomorSut ?? '-'}',
+                  child: SelectableText(trx.cTypeChassis.displayName),
+                ),
+              ),
               // 5. Jenis Kendaraan
               DataCell(SelectableText(trx.dJenisKendaraan.jenisKendaraan)),
               // 6. Jenis Pengajuan

@@ -42,6 +42,7 @@ class MasterDataDataSource extends AsyncDataTableSource {
               DataCell(SelectableText(item.typeEngine.name)),
               DataCell(SelectableText(item.merk.name)),
               DataCell(SelectableText(item.typeChassis.displayName)),
+              DataCell(SelectableText(item.typeChassis.nomorSut ?? '-')),
               DataCell(SelectableText(item.jenisKendaraan.name)),
               DataCell(
                 SelectableText(

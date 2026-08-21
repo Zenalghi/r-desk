@@ -8,6 +8,7 @@ class MasterKelistrikanFile {
   final int typeChassisId;
 
   final String chassisName;
+  final String? nomorSut;
   final String merkName;
   final String engineName;
   final DateTime createdAt;
@@ -20,6 +21,7 @@ class MasterKelistrikanFile {
     required this.merkId, // Baru
     required this.typeChassisId, // Baru
     required this.chassisName,
+    this.nomorSut,
     required this.merkName,
     required this.engineName,
     required this.createdAt,
@@ -44,6 +46,7 @@ class MasterKelistrikanFile {
         }
         return chassis;
       }(),
+      nomorSut: json['nomor_sut'],
       merkName: json['merk'] ?? '-',
       engineName: json['type_engine'] ?? '-',
       createdAt: DateTime.parse(json['created_at']),

@@ -81,10 +81,11 @@ class _VarianBodyTableState extends ConsumerState<VarianBodyTable> {
       1: 'type_engine',
       2: 'merk',
       3: 'type_chassis',
-      4: 'jenis_kendaraan',
-      5: 'varian_body',
-      6: 'created_at',
-      7: 'updated_at',
+      4: 'nomor_sut',
+      5: 'jenis_kendaraan',
+      6: 'varian_body',
+      7: 'created_at',
+      8: 'updated_at',
     };
 
     ref.read(varianBodyFilterProvider.notifier).update((state) {
@@ -108,6 +109,11 @@ class _VarianBodyTableState extends ConsumerState<VarianBodyTable> {
       DataColumn2(
         label: const Text('Type Chassis'),
         size: ColumnSize.L,
+        onSort: _onSort,
+      ),
+      DataColumn2(
+        label: const Text('Nomor SUT'),
+        size: ColumnSize.M,
         onSort: _onSort,
       ),
       DataColumn2(

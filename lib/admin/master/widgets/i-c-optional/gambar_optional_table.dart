@@ -64,11 +64,11 @@ class _GambarOptionalTableState extends ConsumerState<GambarOptionalTable> {
       1: 'type_engine',
       2: 'merk',
       3: 'type_chassis',
-      4: 'jenis_kendaraan',
-      // Kolom 5 adalah Deskripsi
-      5: 'deskripsi',
-      6: 'created_at',
-      7: 'updated_at',
+      4: 'nomor_sut',
+      5: 'jenis_kendaraan',
+      6: 'deskripsi_optional',
+      7: 'created_at',
+      8: 'updated_at',
     };
 
     ref.read(gambarOptionalFilterProvider.notifier).update((state) {
@@ -94,12 +94,17 @@ class _GambarOptionalTableState extends ConsumerState<GambarOptionalTable> {
         onSort: _onSort,
       ),
       DataColumn2(
-        label: const Text('Type\nChassis'),
+        label: const Text('Type Chassis'),
         size: ColumnSize.M,
         onSort: _onSort,
       ),
       DataColumn2(
-        label: const Text('Jenis\nKendaraan'),
+        label: const Text('Nomor SUT'),
+        size: ColumnSize.S,
+        onSort: _onSort,
+      ),
+      DataColumn2(
+        label: const Text('Jenis Kendaraan'),
         size: ColumnSize.S,
         onSort: _onSort,
       ),

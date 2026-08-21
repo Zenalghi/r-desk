@@ -58,6 +58,9 @@ class ImageStatusDataSource extends AsyncDataTableSource {
               // 4. Type Chassis
               DataCell(SelectableText(masterData.typeChassis.displayName)),
 
+              // Nomor SUT
+              DataCell(SelectableText(masterData.typeChassis.nomorSut ?? '-')),
+
               // 5. Jenis Kendaraan
               DataCell(SelectableText(masterData.jenisKendaraan.name)),
 

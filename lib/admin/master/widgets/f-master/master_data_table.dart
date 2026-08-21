@@ -76,9 +76,10 @@ class _MasterDataTableState extends ConsumerState<MasterDataTable> {
       1: 'type_engine',
       2: 'merk',
       3: 'type_chassis',
-      4: 'jenis_kendaraan',
-      5: 'created_at',
-      6: 'updated_at',
+      4: 'nomor_sut',
+      5: 'jenis_kendaraan',
+      6: 'created_at',
+      7: 'updated_at',
     };
 
     ref
@@ -104,6 +105,11 @@ class _MasterDataTableState extends ConsumerState<MasterDataTable> {
       DataColumn2(
         label: const Text('Type Chassis'),
         size: ColumnSize.L,
+        onSort: _onSort,
+      ),
+      DataColumn2(
+        label: const Text('Nomor SUT'),
+        size: ColumnSize.M,
         onSort: _onSort,
       ),
       DataColumn2(

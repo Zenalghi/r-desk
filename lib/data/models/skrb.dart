@@ -41,6 +41,7 @@ class SkrbAvailableTransaction {
   final String? merekDagang;
   final String jenisKendaraan;
   final String jenisPengajuan;
+  final String? nomorSut;
 
   String get chassisDisplayName => (merekDagang != null && merekDagang!.trim().isNotEmpty)
       ? '$typeChassis (${merekDagang!.trim()})'
@@ -58,6 +59,7 @@ class SkrbAvailableTransaction {
     this.merekDagang,
     required this.jenisKendaraan,
     required this.jenisPengajuan,
+    this.nomorSut,
   });
 
   factory SkrbAvailableTransaction.fromJson(Map<String, dynamic> json) {
@@ -73,6 +75,7 @@ class SkrbAvailableTransaction {
       merekDagang: json['merek_dagang']?.toString(),
       jenisKendaraan: json['jenis_kendaraan'] ?? '-',
       jenisPengajuan: json['jenis_pengajuan'] ?? 'Varian',
+      nomorSut: json['nomor_sut']?.toString(),
     );
   }
 
@@ -95,6 +98,7 @@ class Skrb {
   final String jenisKendaraan;
   final String jenisPengajuan;
   final String statusTdp;
+  final String? nomorSut;
 
   String get chassisDisplayName => (merekDagang != null && merekDagang!.trim().isNotEmpty)
       ? '$typeChassis (${merekDagang!.trim()})'
@@ -130,6 +134,7 @@ class Skrb {
     required this.jenisKendaraan,
     required this.jenisPengajuan,
     required this.statusTdp,
+    this.nomorSut,
     this.tdpMasaBerlaku,
     this.isTdpOutdated = false,
     this.hasKopSurat = true,
@@ -169,6 +174,7 @@ class Skrb {
       merekDagang: json['merek_dagang']?.toString(),
       jenisKendaraan: json['jenis_kendaraan'] ?? '-',
       jenisPengajuan: json['jenis_pengajuan'] ?? 'Varian',
+      nomorSut: json['nomor_sut']?.toString(),
       statusTdp:
           (json['is_tdp_outdated'] == true ||
               json['status_tdp'] == 'Diperbarui Admin')

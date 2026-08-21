@@ -44,6 +44,7 @@ class GambarKelistrikanDataSource extends AsyncDataTableSource {
               DataCell(SelectableText(item.engineName)),
               DataCell(SelectableText(item.merkName)),
               DataCell(SelectableText(item.chassisName)),
+              DataCell(SelectableText(item.nomorSut ?? '-')),
 
               // 3. Tanggal
               DataCell(

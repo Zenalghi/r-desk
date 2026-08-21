@@ -79,11 +79,12 @@ class _ImageStatusTableState extends ConsumerState<ImageStatusTable> {
       1: 'type_engine',
       2: 'merk',
       3: 'type_chassis',
-      4: 'jenis_kendaraan',
-      5: 'varian_body',
-      // 7: 'created_at',
-      // 8: 'updated_at',
-      7: 'deskripsi_optional',
+      4: 'nomor_sut',
+      5: 'jenis_kendaraan',
+      6: 'varian_body',
+      // 8: 'created_at',
+      // 9: 'updated_at',
+      8: 'deskripsi_optional',
     };
 
     setState(() {
@@ -119,6 +120,13 @@ class _ImageStatusTableState extends ConsumerState<ImageStatusTable> {
       DataColumn2(
         label: const Text('Type Chassis'),
         size: ColumnSize.L,
+        onSort: _onSort,
+      ),
+
+      // Nomor SUT
+      DataColumn2(
+        label: const Text('Nomor SUT'),
+        size: ColumnSize.M,
         onSort: _onSort,
       ),
 
