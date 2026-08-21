@@ -140,28 +140,48 @@ class _TambahTransaksiDialogState extends ConsumerState<TambahTransaksiDialog> {
                     borderRadius: BorderRadius.all(Radius.circular(8)),
                   ),
                   itemBuilder: (context, item, isSelected, isDisabled) {
+                    final hasSut = item.data != null && item.data!['nomor_sut'] != null && item.data!['nomor_sut'].toString().isNotEmpty;
                     return Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 10,
-                        vertical: 0,
+                        vertical: 6,
                       ),
-                      height:
-                          30, // Paksa tinggi item menjadi 30px (atau lebih kecil sesuai selera)
                       alignment: Alignment.centerLeft,
-                      child: Text(
-                        item.name,
-                        style: TextStyle(
-                          fontSize: 12,
-                          height: 1.0,
-                          fontWeight: isSelected
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                          color: isSelected
-                              ? Theme.of(context).primaryColor
-                              : Theme.of(context).colorScheme.onSurface,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3)
+                            : null,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            item.name,
+                            style: TextStyle(
+                              fontSize: 12,
+                              height: 1.0,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              color: isSelected
+                                  ? Theme.of(context).primaryColor
+                                  : Theme.of(context).colorScheme.onSurface,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          if (hasSut) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              'Nomor SUT: ${item.data!['nomor_sut']}',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                     );
                   },
@@ -219,28 +239,48 @@ class _TambahTransaksiDialogState extends ConsumerState<TambahTransaksiDialog> {
                     borderRadius: BorderRadius.all(Radius.circular(8)),
                   ),
                   itemBuilder: (context, item, isSelected, isDisabled) {
+                    final hasSut = item.data != null && item.data!['nomor_sut'] != null && item.data!['nomor_sut'].toString().isNotEmpty;
                     return Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 10,
-                        vertical: 0,
+                        vertical: 6,
                       ),
-                      height:
-                          30, // Paksa tinggi item menjadi 30px (atau lebih kecil sesuai selera)
                       alignment: Alignment.centerLeft,
-                      child: Text(
-                        item.name,
-                        style: TextStyle(
-                          fontSize: 12,
-                          height: 1.0,
-                          fontWeight: isSelected
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                          color: isSelected
-                              ? Theme.of(context).primaryColor
-                              : Theme.of(context).colorScheme.onSurface,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3)
+                            : null,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            item.name,
+                            style: TextStyle(
+                              fontSize: 12,
+                              height: 1.0,
+                              fontWeight: isSelected
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                              color: isSelected
+                                  ? Theme.of(context).primaryColor
+                                  : Theme.of(context).colorScheme.onSurface,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          if (hasSut) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              'Nomor SUT: ${item.data!['nomor_sut']}',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
+                        ],
                       ),
                     );
                   },
@@ -337,26 +377,43 @@ class _TambahTransaksiDialogState extends ConsumerState<TambahTransaksiDialog> {
 
             // 2. Custom Item Builder (Agar item list jadi pendek 30px)
             itemBuilder: (context, item, isSelected, isDisabled) {
+              final hasSut = item.data != null && item.data!['nomor_sut'] != null && item.data!['nomor_sut'].toString().isNotEmpty;
               return Container(
-                height: 30, // Paksa tinggi per item 30px
-                padding: const EdgeInsets.symmetric(horizontal: 10),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 alignment: Alignment.centerLeft,
                 color: isSelected
-                    ? Theme.of(context).primaryColor.withOpacity(0.1)
+                    ? Theme.of(context).primaryColor.withValues(alpha: 0.1)
                     : null,
-                child: Text(
-                  item.name,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: isSelected
-                        ? Theme.of(context).primaryColor
-                        : Theme.of(context).colorScheme.onSurface,
-                    fontWeight: isSelected
-                        ? FontWeight.bold
-                        : FontWeight.normal,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      item.name,
+                      style: TextStyle(
+                        fontSize: 12,
+                        height: 1.0,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                        color: isSelected
+                            ? Theme.of(context).primaryColor
+                            : Theme.of(context).colorScheme.onSurface,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (hasSut) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        'Nomor SUT: ${item.data!['nomor_sut']}',
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               );
             },

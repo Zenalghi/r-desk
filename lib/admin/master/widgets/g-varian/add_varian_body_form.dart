@@ -211,27 +211,48 @@ class _AddVarianBodyFormState extends ConsumerState<AddVarianBodyForm> {
                       borderRadius: BorderRadius.all(Radius.circular(8)),
                     ),
                     itemBuilder: (context, item, isSelected, isDisabled) {
+                      final hasSut = item.data != null && item.data!['nomor_sut'] != null && item.data!['nomor_sut'].toString().isNotEmpty;
                       return Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 10,
-                          vertical: 0,
+                          vertical: 6,
                         ),
-                        height: 30,
                         alignment: Alignment.centerLeft,
-                        child: Text(
-                          item.name,
-                          style: TextStyle(
-                            fontSize: 12,
-                            height: 1.0,
-                            fontWeight: isSelected
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                            color: isSelected
-                                ? Theme.of(context).primaryColor
-                                : Theme.of(context).colorScheme.onSurface,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3)
+                              : null,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              item.name,
+                              style: TextStyle(
+                                fontSize: 12,
+                                height: 1.0,
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
+                                color: isSelected
+                                    ? Theme.of(context).primaryColor
+                                    : Theme.of(context).colorScheme.onSurface,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            if (hasSut) ...[
+                              const SizedBox(height: 2),
+                              Text(
+                                'Nomor SUT: ${item.data!['nomor_sut']}',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       );
                     },

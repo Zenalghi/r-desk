@@ -390,6 +390,16 @@ class _TambahPermohonanSkrbDialogState
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
+                                  if (item.nomorSut != null && item.nomorSut!.isNotEmpty) ...[
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      'Nomor SUT: ${item.nomorSut}',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                    ),
+                                  ],
                                 ],
                               ),
                             ),
@@ -490,25 +500,40 @@ class _TambahPermohonanSkrbDialogState
                                       ),
                                     ),
                                   ),
-                                  itemBuilder: (ctx, item, isSel, isDis) =>
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                        ),
-                                        height: 36,
-                                        alignment: Alignment.centerLeft,
-                                        child: Text(
-                                          item.name,
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: isSel
-                                                ? FontWeight.bold
-                                                : FontWeight.normal,
+                                  itemBuilder: (ctx, item, isSel, isDis) {
+                                    final hasSut = item.data != null && item.data!['nomor_sut'] != null && item.data!['nomor_sut'].toString().isNotEmpty;
+                                    return Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                      alignment: Alignment.centerLeft,
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            item.name,
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              fontWeight: isSel
+                                                  ? FontWeight.bold
+                                                  : FontWeight.normal,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
                                           ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
+                                          if (hasSut) ...[
+                                            const SizedBox(height: 2),
+                                            Text(
+                                              'Nomor SUT: ${item.data!['nomor_sut']}',
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                color: Colors.grey.shade600,
+                                              ),
+                                            ),
+                                          ],
+                                        ],
                                       ),
+                                    );
+                                  },
                                 ),
                               ),
                             ],
@@ -582,25 +607,40 @@ class _TambahPermohonanSkrbDialogState
                                       constraints: const BoxConstraints(
                                         maxHeight: 220,
                                       ),
-                                      itemBuilder: (ctx, item, isSel, isDis) =>
-                                          Container(
-                                            height: 36,
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                            ),
-                                            alignment: Alignment.centerLeft,
-                                            child: Text(
-                                              item.name,
-                                              style: TextStyle(
-                                                fontSize: 13,
-                                                fontWeight: isSel
-                                                    ? FontWeight.bold
-                                                    : FontWeight.normal,
+                                      itemBuilder: (ctx, item, isSel, isDis) {
+                                        final hasSut = item.data != null && item.data!['nomor_sut'] != null && item.data!['nomor_sut'].toString().isNotEmpty;
+                                        return Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                          alignment: Alignment.centerLeft,
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text(
+                                                item.name,
+                                                style: TextStyle(
+                                                  fontSize: 13,
+                                                  fontWeight: isSel
+                                                      ? FontWeight.bold
+                                                      : FontWeight.normal,
+                                                ),
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
                                               ),
-                                              maxLines: 1,
-                                              overflow: TextOverflow.ellipsis,
-                                            ),
+                                              if (hasSut) ...[
+                                                const SizedBox(height: 2),
+                                                Text(
+                                                  'Nomor SUT: ${item.data!['nomor_sut']}',
+                                                  style: TextStyle(
+                                                    fontSize: 10,
+                                                    color: Colors.grey.shade600,
+                                                  ),
+                                                ),
+                                              ],
+                                            ],
                                           ),
+                                        );
+                                      },
                                     ),
                                   );
                                 },
@@ -663,22 +703,40 @@ class _TambahPermohonanSkrbDialogState
                             ),
                           ),
                         ),
-                        itemBuilder: (ctx, item, isSel, isDis) => Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          height: 36,
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            item.name,
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: isSel
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
+                        itemBuilder: (ctx, item, isSel, isDis) {
+                          final hasSut = item.data != null && item.data!['nomor_sut'] != null && item.data!['nomor_sut'].toString().isNotEmpty;
+                          return Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            alignment: Alignment.centerLeft,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  item.name,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    fontWeight: isSel
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                if (hasSut) ...[
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'Nomor SUT: ${item.data!['nomor_sut']}',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                                ],
+                              ],
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
+                          );
+                        },
                       ),
                     ),
                     const SizedBox(height: 16),
