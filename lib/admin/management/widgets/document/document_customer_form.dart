@@ -41,6 +41,7 @@ class _DocumentCustomerFormState extends ConsumerState<DocumentCustomerForm> {
   PlatformFile? _newDataUmum;
   List<PlatformFile> _newTdpFiles = [];
   final Map<int, PlatformFile> _replacedTdpFiles = {};
+  final Set<int> _deletedTdpIndices = {};
 
   // ──────────────────────────────────────────────────────────────────────────
   // STATE: Text Controllers
@@ -124,7 +125,9 @@ class _DocumentCustomerFormState extends ConsumerState<DocumentCustomerForm> {
   bool get _isAdmin => ref.read(userRoleProvider) == 'admin';
 
   int get _totalTdpCount =>
-      (_currentDoc?.tdpFiles.length ?? 0) + _newTdpFiles.length;
+      (_currentDoc?.tdpFiles.length ?? 0) -
+      _deletedTdpIndices.length +
+      _newTdpFiles.length;
 
   String? get _localStatusTdp {
     if (_selectedMasaBerlaku == null) return null;
@@ -178,6 +181,13 @@ class _DocumentCustomerFormState extends ConsumerState<DocumentCustomerForm> {
   // ══════════════════════════════════════════════════════════════════════════
 
   void _markChanged() => setState(() => _hasChanges = true);
+
+  void _checkMasaBerlaku() {
+    if (_totalTdpCount == 0 && _selectedMasaBerlaku != null) {
+      _selectedMasaBerlaku = null;
+      _masaBerlakuCtrl.clear();
+    }
+  }
 
   String _formatTanggalIndonesia(DateTime date) => formatTanggalIndonesia(date);
 
@@ -303,12 +313,14 @@ class _DocumentCustomerFormState extends ConsumerState<DocumentCustomerForm> {
   // TDP ACTIONS
   // ══════════════════════════════════════════════════════════════════════════
 
-  Future<void> _deleteTdpFile(int index) async {
-    final confirmed = await showDialog<bool>(
+  void _deleteTdpFile(int index) {
+    showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Hapus File TDP'),
-        content: Text('Yakin hapus file TDP #${index + 1}?'),
+        content: const Text(
+          'Yakin hapus file TDP ini dari daftar?\n(Klik Simpan untuk permanen)',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -321,32 +333,16 @@ class _DocumentCustomerFormState extends ConsumerState<DocumentCustomerForm> {
           ),
         ],
       ),
-    );
-
-    if (confirmed == true) {
-      try {
-        final doc = await ref
-            .read(documentCustomerRepositoryProvider)
-            .deleteTdpFile(widget.customerId, index);
-        ref.invalidate(documentCustomerProvider(widget.customerId));
+    ).then((confirmed) {
+      if (confirmed == true) {
         setState(() {
-          _pdfBytesCache.clear();
-          _cacheVersion++;
-          _currentDoc = doc;
-          _selectedMasaBerlaku = doc.tdpMasaBerlaku;
-          _replacedTdpFiles.clear();
+          _deletedTdpIndices.add(index);
+          _replacedTdpFiles.remove(index);
+          _checkMasaBerlaku();
+          _markChanged();
         });
-      } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Gagal menghapus TDP: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
       }
-    }
+    });
   }
 
   Future<void> _replaceTdpFile(int index) async {
@@ -384,10 +380,19 @@ class _DocumentCustomerFormState extends ConsumerState<DocumentCustomerForm> {
             .replaceTdpFile(widget.customerId, entry.key, entry.value);
       }
 
+      // 1.5 Hapus file TDP yang ditandai hapus (dari index terbesar ke terkecil)
+      final sortedDeletes = _deletedTdpIndices.toList()
+        ..sort((a, b) => b.compareTo(a));
+      for (final idx in sortedDeletes) {
+        await ref
+            .read(documentCustomerRepositoryProvider)
+            .deleteTdpFile(widget.customerId, idx);
+      }
+
       // 2. Simpan seluruh data form
       final masaBerlaku = _selectedMasaBerlaku != null
           ? DateFormat('yyyy-MM-dd').format(_selectedMasaBerlaku!)
-          : null;
+          : '';
 
       final doc = await ref
           .read(documentCustomerRepositoryProvider)
@@ -416,6 +421,7 @@ class _DocumentCustomerFormState extends ConsumerState<DocumentCustomerForm> {
         _newDataUmum = null;
         _newTdpFiles = [];
         _replacedTdpFiles.clear();
+        _deletedTdpIndices.clear();
         _hasChanges = false;
         _isSaving = false;
       });
@@ -543,27 +549,34 @@ class _DocumentCustomerFormState extends ConsumerState<DocumentCustomerForm> {
     final existingTdp = _currentDoc?.tdpFiles ?? [];
 
     // ── Build TDP rows ──────────────────────────────────────────────────────
-    final existingTdpRows = List.generate(existingTdp.length, (i) {
+    final existingTdpRows = <TdpRowData>[];
+    int visualIndex = 0;
+    for (int i = 0; i < existingTdp.length; i++) {
+      if (_deletedTdpIndices.contains(i)) continue;
+
       final replaced = _replacedTdpFiles[i];
-      return TdpRowData(
-        index: i,
-        fileName: replaced?.name ?? existingTdp[i].path.split('/').last,
-        fileSize: replaced?.size ?? existingTdp[i].size,
-        isExisting: true,
-        onReplace: () => _replaceTdpFile(i),
-        onDelete: () => _deleteTdpFile(i),
-        previewWidget: (replaced?.bytes != null)
-            ? _buildPdfPreviewFromBytes(replaced!.bytes!, 'tdp_replace_$i')
-            : _buildPdfPreviewFromUrl(
-                repo.getPdfViewUrl(widget.customerId, 'tdp', index: i),
-              ),
+      existingTdpRows.add(
+        TdpRowData(
+          index: visualIndex,
+          fileName: replaced?.name ?? existingTdp[i].path.split('/').last,
+          fileSize: replaced?.size ?? existingTdp[i].size,
+          isExisting: true,
+          onReplace: () => _replaceTdpFile(i),
+          onDelete: () => _deleteTdpFile(i),
+          previewWidget: (replaced?.bytes != null)
+              ? _buildPdfPreviewFromBytes(replaced!.bytes!, 'tdp_replace_$i')
+              : _buildPdfPreviewFromUrl(
+                  repo.getPdfViewUrl(widget.customerId, 'tdp', index: i),
+                ),
+        ),
       );
-    });
+      visualIndex++;
+    }
 
     final newTdpRows = List.generate(_newTdpFiles.length, (i) {
-      final globalIndex = existingTdp.length + i;
+      final displayIndex = visualIndex + i;
       return TdpRowData(
-        index: globalIndex,
+        index: displayIndex,
         fileName: _newTdpFiles[i].name,
         fileSize: _newTdpFiles[i].size,
         isExisting: false,
@@ -575,8 +588,11 @@ class _DocumentCustomerFormState extends ConsumerState<DocumentCustomerForm> {
           }
         },
         onDelete: () {
-          setState(() => _newTdpFiles.removeAt(i));
-          _markChanged();
+          setState(() {
+            _newTdpFiles.removeAt(i);
+            _checkMasaBerlaku();
+            _markChanged();
+          });
         },
         previewWidget: _newTdpFiles[i].bytes != null
             ? _buildPdfPreviewFromBytes(_newTdpFiles[i].bytes!, 'tdp_new_$i')
