@@ -156,8 +156,6 @@ class _DocumentCustomerFormState extends ConsumerState<DocumentCustomerForm> {
         (_currentDoc?.kopSurat != null) || (_newKopSurat != null);
     final isDataUmumFilled =
         (_currentDoc?.dataUmum != null) || (_newDataUmum != null);
-    final isTdp1Filled = _totalTdpCount > 0;
-    final isMasaBerlakuFilled = _selectedMasaBerlaku != null;
     final isFormatPenomoranFilled =
         _skrbCtrl.text.trim().isNotEmpty &&
         _rekomCtrl.text.trim().isNotEmpty &&
@@ -165,11 +163,14 @@ class _DocumentCustomerFormState extends ConsumerState<DocumentCustomerForm> {
         _bidangUsahaCtrl.text.trim().isNotEmpty &&
         _alamatLengkapCtrl.text.trim().isNotEmpty;
 
+    final isTdpFilled = _totalTdpCount > 0;
+    final isMasaBerlakuFilled = _selectedMasaBerlaku != null;
+    final isTdpValid = !isTdpFilled || (isTdpFilled && isMasaBerlakuFilled);
+
     return isKopFilled &&
         isDataUmumFilled &&
-        isTdp1Filled &&
-        isMasaBerlakuFilled &&
-        isFormatPenomoranFilled;
+        isFormatPenomoranFilled &&
+        isTdpValid;
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -363,10 +364,10 @@ class _DocumentCustomerFormState extends ConsumerState<DocumentCustomerForm> {
   Future<void> _save() async {
     if (_isSaving) return;
 
-    if (_selectedMasaBerlaku == null) {
+    if (_totalTdpCount > 0 && _selectedMasaBerlaku == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Masa Berlaku wajib diisi sebelum menyimpan dokumen!'),
+          content: Text('File TDP diisi, maka Masa Berlaku wajib diisi!'),
           backgroundColor: Colors.red,
         ),
       );
@@ -384,9 +385,9 @@ class _DocumentCustomerFormState extends ConsumerState<DocumentCustomerForm> {
       }
 
       // 2. Simpan seluruh data form
-      final masaBerlaku = DateFormat(
-        'yyyy-MM-dd',
-      ).format(_selectedMasaBerlaku!);
+      final masaBerlaku = _selectedMasaBerlaku != null
+          ? DateFormat('yyyy-MM-dd').format(_selectedMasaBerlaku!)
+          : null;
 
       final doc = await ref
           .read(documentCustomerRepositoryProvider)
@@ -674,7 +675,7 @@ class _DocumentCustomerFormState extends ConsumerState<DocumentCustomerForm> {
                   onPickDate: _pickDate,
                   existingRows: existingTdpRows,
                   newRows: newTdpRows,
-                  onPickNextTdp: (isAdmin && _totalTdpCount < 20)
+                  onPickNextTdp: (isAdmin && _totalTdpCount < 5)
                       ? () async {
                           final files = await _pickMultiplePdf();
                           if (files.isNotEmpty) {
