@@ -551,7 +551,7 @@ class _DocumentCustomerFormState extends ConsumerState<DocumentCustomerForm> {
         fileSize: replaced?.size ?? existingTdp[i].size,
         isExisting: true,
         onReplace: () => _replaceTdpFile(i),
-        onDelete: i > 0 ? () => _deleteTdpFile(i) : null,
+        onDelete: () => _deleteTdpFile(i),
         previewWidget: (replaced?.bytes != null)
             ? _buildPdfPreviewFromBytes(replaced!.bytes!, 'tdp_replace_$i')
             : _buildPdfPreviewFromUrl(
@@ -574,12 +574,10 @@ class _DocumentCustomerFormState extends ConsumerState<DocumentCustomerForm> {
             _markChanged();
           }
         },
-        onDelete: globalIndex > 0
-            ? () {
-                setState(() => _newTdpFiles.removeAt(i));
-                _markChanged();
-              }
-            : null,
+        onDelete: () {
+          setState(() => _newTdpFiles.removeAt(i));
+          _markChanged();
+        },
         previewWidget: _newTdpFiles[i].bytes != null
             ? _buildPdfPreviewFromBytes(_newTdpFiles[i].bytes!, 'tdp_new_$i')
             : null,
