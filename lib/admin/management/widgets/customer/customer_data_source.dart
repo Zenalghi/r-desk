@@ -174,7 +174,7 @@ class CustomerDataSource extends DataTableSource {
             children: [
               IconButton(
                 icon: const Icon(Icons.edit, color: Colors.orange, size: 15),
-                tooltip: 'Edit Customer',
+                tooltip: 'Edit Customer\n${customer.namaPt}',
                 onPressed: () {
                   showDialog(
                     context: context,
@@ -188,7 +188,7 @@ class CustomerDataSource extends DataTableSource {
                   color: Colors.blue,
                   size: 15,
                 ),
-                tooltip: 'Document Customer: ${customer.namaPt}',
+                tooltip: 'Document Customer:\n${customer.namaPt}',
                 onPressed: () {
                   ref.read(selectedDocumentCustomerProvider.notifier).state =
                       customer;

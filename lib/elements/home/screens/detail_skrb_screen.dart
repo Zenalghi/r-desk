@@ -628,11 +628,18 @@ class _DetailSkrbScreenState extends ConsumerState<DetailSkrbScreen> {
       );
     }
 
+    Skrb? updatedSkrb;
+    bool shouldReloadPdf = false;
+
     try {
       await ref.read(skrbRepositoryProvider).updatePhase(skrb.id, targetPhase);
       ref.read(skrbUnsavedChangesProvider.notifier).state = false;
-      final _ = await ref.refresh(skrbDetailProvider(skrb.id).future);
+      updatedSkrb = await ref.refresh(skrbDetailProvider(skrb.id).future);
       ref.invalidate(skrbListProvider);
+
+      if (targetPhase == 3 && _showPdfCard && _currentPreviewKey != null) {
+        shouldReloadPdf = true;
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
@@ -643,6 +650,14 @@ class _DetailSkrbScreenState extends ConsumerState<DetailSkrbScreen> {
       if (mounted) {
         Navigator.of(context, rootNavigator: true).pop();
         setState(() => _isProcessing = false);
+
+        if (shouldReloadPdf && updatedSkrb != null) {
+          final docItems = DocItem.buildList(updatedSkrb);
+          final currentItem = docItems.where((d) => d.key == _currentPreviewKey).firstOrNull;
+          if (currentItem != null) {
+            _handlePreviewPdf(updatedSkrb, currentItem);
+          }
+        }
       }
     }
   }

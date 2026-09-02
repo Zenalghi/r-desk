@@ -16,8 +16,8 @@ class PermohonanSkrbTable extends ConsumerStatefulWidget {
 
 class _PermohonanSkrbTableState extends ConsumerState<PermohonanSkrbTable> {
   int _rowsPerPage = 50;
-  int? _sortColumnIndex;
-  bool _sortAscending = true;
+  int? _sortColumnIndex = 8;
+  bool _sortAscending = false;
 
   void _onSort(int columnIndex, bool ascending) {
     setState(() {
