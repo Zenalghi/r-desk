@@ -215,11 +215,26 @@ class CardIdSkrbSetting extends StatelessWidget {
               ),
             )
           else if (previewError != null)
-            Text(
-              'Gagal memuat preview: $previewError',
-              style: const TextStyle(
-                color: Colors.red,
-                fontSize: 12,
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: Colors.red.withOpacity(0.3)),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.error_outline, color: Colors.red, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      previewError!.contains('Data Customer belum ditambahkan') 
+                          ? previewError! 
+                          : 'Gagal memuat preview: $previewError',
+                      style: const TextStyle(color: Colors.red, fontSize: 13, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ],
               ),
             )
           else

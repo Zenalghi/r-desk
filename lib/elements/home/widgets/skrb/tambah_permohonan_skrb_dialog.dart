@@ -1,5 +1,6 @@
 // File: lib/elements/home/widgets/skrb/tambah_permohonan_skrb_dialog.dart
 import 'dart:ui' show ImageFilter;
+import 'package:dio/dio.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -59,6 +60,13 @@ class _TambahPermohonanSkrbDialogState
   /// - Cara 1: ada transaksi terpilih, ATAU
   /// - Cara 2: ketiga dropdown terisi
   bool get _canCreate {
+    if (_previewError != null &&
+        _previewError!.toLowerCase().contains(
+          'data customer belum ditambahkan',
+        )) {
+      return false;
+    }
+
     if (_selectedTransaction != null) {
       return true;
     }
@@ -114,8 +122,19 @@ class _TambahPermohonanSkrbDialogState
       }
     } catch (e) {
       if (mounted && _currentPreviewCustomerId == customerId) {
+        String errMsg = e.toString();
+        if (e is DioException) {
+          errMsg =
+              e.response?.data?['message']?.toString() ?? e.message ?? errMsg;
+        }
+        final msg = errMsg.toLowerCase();
+        if (msg.contains('data customer belum ditambahkan') ||
+            msg.contains('hubungi admin')) {
+          errMsg = 'Data Customer belum ditambahkan\nhubungi admin';
+        }
+
         setState(() {
-          _previewError = e.toString();
+          _previewError = errMsg;
           _loadingPreview = false;
         });
       }
@@ -390,7 +409,8 @@ class _TambahPermohonanSkrbDialogState
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
-                                  if (item.nomorSut != null && item.nomorSut!.isNotEmpty) ...[
+                                  if (item.nomorSut != null &&
+                                      item.nomorSut!.isNotEmpty) ...[
                                     const SizedBox(height: 2),
                                     Text(
                                       'Nomor SUT: ${item.nomorSut}',
@@ -501,12 +521,21 @@ class _TambahPermohonanSkrbDialogState
                                     ),
                                   ),
                                   itemBuilder: (ctx, item, isSel, isDis) {
-                                    final hasSut = item.data != null && item.data!['nomor_sut'] != null && item.data!['nomor_sut'].toString().isNotEmpty;
+                                    final hasSut =
+                                        item.data != null &&
+                                        item.data!['nomor_sut'] != null &&
+                                        item.data!['nomor_sut']
+                                            .toString()
+                                            .isNotEmpty;
                                     return Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 12,
+                                        vertical: 6,
+                                      ),
                                       alignment: Alignment.centerLeft,
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Text(
@@ -565,7 +594,9 @@ class _TambahPermohonanSkrbDialogState
                                   ),
                                 ),
                                 data: (items) {
-                                  final filteredItems = items.where((e) => e.id != 4).toList();
+                                  final filteredItems = items
+                                      .where((e) => e.id != 4)
+                                      .toList();
                                   final selectedItem = filteredItems
                                       .where(
                                         (e) =>
@@ -608,12 +639,21 @@ class _TambahPermohonanSkrbDialogState
                                         maxHeight: 220,
                                       ),
                                       itemBuilder: (ctx, item, isSel, isDis) {
-                                        final hasSut = item.data != null && item.data!['nomor_sut'] != null && item.data!['nomor_sut'].toString().isNotEmpty;
+                                        final hasSut =
+                                            item.data != null &&
+                                            item.data!['nomor_sut'] != null &&
+                                            item.data!['nomor_sut']
+                                                .toString()
+                                                .isNotEmpty;
                                         return Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 6,
+                                          ),
                                           alignment: Alignment.centerLeft,
                                           child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             mainAxisSize: MainAxisSize.min,
                                             children: [
                                               Text(
@@ -704,9 +744,15 @@ class _TambahPermohonanSkrbDialogState
                           ),
                         ),
                         itemBuilder: (ctx, item, isSel, isDis) {
-                          final hasSut = item.data != null && item.data!['nomor_sut'] != null && item.data!['nomor_sut'].toString().isNotEmpty;
+                          final hasSut =
+                              item.data != null &&
+                              item.data!['nomor_sut'] != null &&
+                              item.data!['nomor_sut'].toString().isNotEmpty;
                           return Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
                             alignment: Alignment.centerLeft,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -946,6 +992,7 @@ class _TambahPermohonanSkrbDialogState
       if (mounted) {
         Navigator.of(context).pop(); // Tutup loading dialog
         final msg = e.toString();
+
         final isDuplicateId =
             msg.toLowerCase().contains('sudah digunakan') ||
             msg.toLowerCase().contains('duplicate') ||
@@ -996,6 +1043,7 @@ class _TambahPermohonanSkrbDialogState
       if (mounted) {
         Navigator.of(context).pop(); // Tutup loading dialog
         final msg = e.toString();
+
         final isDuplicateId =
             msg.toLowerCase().contains('sudah digunakan') ||
             msg.toLowerCase().contains('duplicate') ||

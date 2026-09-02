@@ -2,6 +2,7 @@
 // Dialog konfirmasi sebelum membuat Permohonan SKRB.
 // Menampilkan preview ID SKRB sistem dan memungkinkan user memasukkan nomor urut manual.
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -72,8 +73,18 @@ class _BuatSkrbDialogState extends ConsumerState<BuatSkrbDialog> {
       }
     } catch (e) {
       if (mounted) {
+        String errMsg = e.toString();
+        if (e is DioException) {
+          errMsg =
+              e.response?.data?['message']?.toString() ?? e.message ?? errMsg;
+        }
+        final msg = errMsg.toLowerCase();
+        if (msg.contains('data customer belum ditambahkan') ||
+            msg.contains('hubungi admin')) {
+          errMsg = 'Data Customer belum ditambahkan\nhubungi admin';
+        }
         setState(() {
-          _previewError = e.toString();
+          _previewError = errMsg;
           _loadingPreview = false;
         });
       }
@@ -268,9 +279,40 @@ class _BuatSkrbDialogState extends ConsumerState<BuatSkrbDialog> {
                 ),
               )
             else if (_previewError != null)
-              Text(
-                'Gagal memuat preview: $_previewError',
-                style: const TextStyle(color: Colors.red, fontSize: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.red.withOpacity(0.3)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      color: Colors.red,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        _previewError!.contains(
+                              'Data Customer belum ditambahkan',
+                            )
+                            ? _previewError!
+                            : 'Gagal memuat preview: $_previewError',
+                        style: const TextStyle(
+                          color: Colors.red,
+                          fontSize: 13,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               )
             else
               Container(
@@ -373,13 +415,19 @@ class _BuatSkrbDialogState extends ConsumerState<BuatSkrbDialog> {
           builder: (context, setInnerState) {
             _nomorController.addListener(() => setInnerState(() {}));
             final hasManualNow = _nomorController.text.trim().isNotEmpty;
+            final isBlocked =
+                _previewError != null &&
+                _previewError!.contains('Data Customer belum ditambahkan');
+
             return hasManualNow
                 ? FilledButton.tonal(
-                    onPressed: () => _handleSubmit(useManual: true),
+                    onPressed: isBlocked
+                        ? null
+                        : () => _handleSubmit(useManual: true),
                     child: const Text('Gunakan ID Manual'),
                   )
                 : FilledButton(
-                    onPressed: _loadingPreview
+                    onPressed: _loadingPreview || isBlocked
                         ? null
                         : () => _handleSubmit(useManual: false),
                     child: const Text('Gunakan ID Sistem'),

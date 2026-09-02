@@ -91,8 +91,17 @@ class _EditSkrbDialogState extends ConsumerState<EditSkrbDialog> {
       }
     } catch (e) {
       if (mounted && _selectedCustomerId == customerId) {
+        String errMsg = e.toString();
+        if (e is DioException) {
+          errMsg = e.response?.data?['message']?.toString() ?? e.message ?? errMsg;
+        }
+        final msg = errMsg.toLowerCase();
+        if (msg.contains('data customer belum ditambahkan') ||
+            msg.contains('hubungi admin')) {
+          errMsg = 'Data Customer belum ditambahkan\nhubungi admin';
+        }
         setState(() {
-          _previewError = e.toString();
+          _previewError = errMsg;
           _loadingPreview = false;
         });
       }
@@ -165,7 +174,12 @@ class _EditSkrbDialogState extends ConsumerState<EditSkrbDialog> {
         );
       }
     } catch (e) {
-      final msg = e.toString().replaceAll('Exception: ', '');
+      String msg = e.toString().replaceAll('Exception: ', '');
+      if (msg.toLowerCase().contains('data customer belum ditambahkan') ||
+          msg.toLowerCase().contains('hubungi admin')) {
+        msg = 'Data Customer belum ditambahkan\nhubungi admin';
+      }
+      
       final isDuplicate = msg.toLowerCase().contains('sudah terdaftar') ||
           msg.toLowerCase().contains('duplikat') ||
           msg.toLowerCase().contains('duplicate') ||
@@ -584,7 +598,13 @@ class _EditSkrbDialogState extends ConsumerState<EditSkrbDialog> {
                 ),
                 const SizedBox(width: 8),
                 FilledButton.icon(
-                  onPressed: _loading ? null : _handleSimpan,
+                  onPressed: (_loading ||
+                          (_previewError != null &&
+                              _previewError!
+                                  .toLowerCase()
+                                  .contains('data customer belum ditambahkan')))
+                      ? null
+                      : _handleSimpan,
                   icon: _loading
                       ? const SizedBox(
                           width: 16,
