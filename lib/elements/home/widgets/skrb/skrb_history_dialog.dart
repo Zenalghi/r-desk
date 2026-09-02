@@ -20,6 +20,13 @@ class _SkrbHistoryDialogState extends ConsumerState<SkrbHistoryDialog> {
   bool _isProcessing = false;
   int? _activeHistoryId;
   bool _isRefreshingStorage = false;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.invalidate(skrbStorageInfoProvider(widget.skrb.id));
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
