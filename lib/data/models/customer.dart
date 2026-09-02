@@ -4,6 +4,7 @@ class Customer {
   final int id;
   final String namaPt;
   final String pj;
+  final String? namaLengkap;
   final String? jabatan;
   final String? signaturePj;
   final String? namaDrafter;
@@ -21,6 +22,7 @@ class Customer {
     required this.id,
     required this.namaPt,
     required this.pj,
+    this.namaLengkap,
     this.jabatan,
     this.signaturePj,
     this.namaDrafter,
@@ -54,6 +56,7 @@ class Customer {
       id: parseInt(json['id']),
       namaPt: json['nama_pt']?.toString() ?? '-',
       pj: json['pj']?.toString() ?? '-',
+      namaLengkap: json['nama_lengkap']?.toString(),
       jabatan: json['jabatan']?.toString(),
       signaturePj: json['signature_pj']?.toString(),
       namaDrafter: json['nama_drafter']?.toString(),

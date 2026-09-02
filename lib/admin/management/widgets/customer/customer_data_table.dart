@@ -158,19 +158,21 @@ class _CustomerDataTableState extends ConsumerState<CustomerDataTable> {
         return 0;
       case 'pj':
         return 1;
-      case 'jabatan':
+      case 'nama_lengkap':
         return 2;
-      case 'drafter':
+      case 'jabatan':
         return 3;
-      case 'pemeriksa':
+      case 'drafter':
         return 4;
+      case 'pemeriksa':
+        return 5;
       case 'created_at':
-        return 8;
-      case 'updated_at':
         return 9;
+      case 'updated_at':
+        return 10;
       case 'status_tdp':
       case 'tdp_masa_berlaku':
-        return 10;
+        return 11;
       default:
         return 0;
     }
@@ -185,6 +187,11 @@ class _CustomerDataTableState extends ConsumerState<CustomerDataTable> {
       ),
       DataColumn2(
         label: const Text('Penanggung Jawab'),
+        size: ColumnSize.L,
+        onSort: _onSort,
+      ),
+      DataColumn2(
+        label: const Text('Nama Lengkap'),
         size: ColumnSize.L,
         onSort: _onSort,
       ),
@@ -247,21 +254,24 @@ class _CustomerDataTableState extends ConsumerState<CustomerDataTable> {
         newSortBy = 'pj';
         break;
       case 2:
-        newSortBy = 'jabatan';
+        newSortBy = 'nama_lengkap';
         break;
       case 3:
-        newSortBy = 'drafter';
+        newSortBy = 'jabatan';
         break;
       case 4:
+        newSortBy = 'drafter';
+        break;
+      case 5:
         newSortBy = 'pemeriksa';
         break;
-      case 8:
+      case 9:
         newSortBy = 'created_at';
         break;
-      case 9:
+      case 10:
         newSortBy = 'updated_at';
         break;
-      case 10:
+      case 11:
         newSortBy = 'status_tdp';
         break;
       default:

@@ -18,6 +18,7 @@ class _AddCustomerFormState extends ConsumerState<AddCustomerForm> {
   final _formKey = GlobalKey<FormState>();
   final _namaPtController = TextEditingController();
   final _pjController = TextEditingController();
+  final _namaLengkapController = TextEditingController();
   final _jabatanController = TextEditingController();
   final _drafterController = TextEditingController();
   final _pemeriksaController = TextEditingController();
@@ -38,6 +39,7 @@ class _AddCustomerFormState extends ConsumerState<AddCustomerForm> {
   void dispose() {
     _namaPtController.dispose();
     _pjController.dispose();
+    _namaLengkapController.dispose();
     _jabatanController.dispose();
     _drafterController.dispose();
     _pemeriksaController.dispose();
@@ -86,6 +88,9 @@ class _AddCustomerFormState extends ConsumerState<AddCustomerForm> {
         final newCustomer = await repo.addCustomer(
           namaPt: _namaPtController.text,
           pj: _pjController.text,
+          namaLengkap: _namaLengkapController.text.isNotEmpty
+              ? _namaLengkapController.text
+              : null,
           jabatan: _jabatanController.text.isNotEmpty
               ? _jabatanController.text
               : null,
@@ -283,9 +288,9 @@ class _AddCustomerFormState extends ConsumerState<AddCustomerForm> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: TextFormField(
-                            controller: _jabatanController,
+                            controller: _namaLengkapController,
                             decoration: const InputDecoration(
-                              labelText: 'Jabatan (Opsional)',
+                              labelText: 'Nama Lengkap (Opsional)',
                             ),
                           ),
                         ),
@@ -294,6 +299,15 @@ class _AddCustomerFormState extends ConsumerState<AddCustomerForm> {
                     const SizedBox(height: 10),
                     Row(
                       children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: _jabatanController,
+                            decoration: const InputDecoration(
+                              labelText: 'Jabatan (Opsional)',
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
                         Expanded(
                           child: TextFormField(
                             controller: _drafterController,
@@ -311,8 +325,6 @@ class _AddCustomerFormState extends ConsumerState<AddCustomerForm> {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 10),
-                        const Expanded(child: SizedBox()),
                       ],
                     ),
                   ],

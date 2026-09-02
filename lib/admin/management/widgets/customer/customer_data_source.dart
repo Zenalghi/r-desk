@@ -45,6 +45,7 @@ class CustomerDataSource extends DataTableSource {
       cells: [
         DataCell(SelectableText(customer.namaPt)),
         DataCell(SelectableText(customer.pj)),
+        DataCell(SelectableText(customer.namaLengkap ?? '-')),
         DataCell(SelectableText(customer.jabatan ?? '-')),
         DataCell(SelectableText(customer.namaDrafter ?? '-')),
         DataCell(SelectableText(customer.namaPemeriksa ?? '-')),

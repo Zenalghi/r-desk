@@ -41,6 +41,7 @@ class CustomerRepository {
   Future<Customer> addCustomer({
     required String namaPt,
     required String pj,
+    String? namaLengkap,
     String? jabatan,
     String? namaDrafter,
     String? namaPemeriksa,
@@ -53,6 +54,7 @@ class CustomerRepository {
           data: {
             'nama_pt': namaPt,
             'pj': pj,
+            'nama_lengkap': namaLengkap,
             'jabatan': jabatan,
             'nama_drafter': namaDrafter,
             'nama_pemeriksa': namaPemeriksa,
@@ -66,6 +68,7 @@ class CustomerRepository {
     required int id,
     required String namaPt,
     required String pj,
+    String? namaLengkap,
     String? jabatan,
     String? namaDrafter,
     String? namaPemeriksa,
@@ -78,6 +81,7 @@ class CustomerRepository {
           data: {
             'nama_pt': namaPt,
             'pj': pj,
+            'nama_lengkap': namaLengkap,
             'jabatan': jabatan,
             'nama_drafter': namaDrafter,
             'nama_pemeriksa': namaPemeriksa,
