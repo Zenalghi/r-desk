@@ -230,7 +230,7 @@ class _CustomerDataTableState extends ConsumerState<CustomerDataTable> {
       ),
       DataColumn2(
         label: const Text('Status TDP'),
-        fixedWidth: 90,
+        fixedWidth: 100,
         onSort: _onSort,
       ),
       const DataColumn2(label: Text('Option'), fixedWidth: 87, onSort: null),

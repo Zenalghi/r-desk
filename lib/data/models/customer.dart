@@ -12,6 +12,8 @@ class Customer {
   final String? signaturePemeriksa;
   final String? statusTdp;
   final DateTime? tdpMasaBerlaku;
+  final int? documentCustomerId;
+  final bool hasDocument;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -27,6 +29,8 @@ class Customer {
     this.signaturePemeriksa,
     this.statusTdp,
     this.tdpMasaBerlaku,
+    this.documentCustomerId,
+    this.hasDocument = false,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -38,6 +42,13 @@ class Customer {
       if (val is double) return val.toInt();
       return int.tryParse(val.toString()) ?? 0;
     }
+
+    final docId = json['document_customer_id'] != null
+        ? int.tryParse(json['document_customer_id'].toString())
+        : null;
+    final hasDoc = json['has_document'] == true ||
+        docId != null ||
+        (json['status_tdp'] != null && json['status_tdp'] != '-' && json['status_tdp'] != 'null');
 
     return Customer(
       id: parseInt(json['id']),
@@ -53,6 +64,8 @@ class Customer {
       tdpMasaBerlaku: json['tdp_masa_berlaku'] != null
           ? DateTime.tryParse(json['tdp_masa_berlaku'].toString())?.toLocal()
           : null,
+      documentCustomerId: docId,
+      hasDocument: hasDoc,
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'].toString())
           : DateTime.now(),

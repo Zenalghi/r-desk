@@ -18,23 +18,55 @@ class DetailSkrbTdpStatus extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    if (!item.hasFile || skrb.statusTdp == 'Kosong' || skrb.statusTdp == '-') {
-      return Row(
-        children: [
-          const Icon(
-            Icons.radio_button_unchecked,
-            size: 16,
-            color: Colors.grey,
-          ),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Text(
-              item.statusText,
-              style: const TextStyle(color: Colors.grey, fontSize: 12),
-              overflow: TextOverflow.ellipsis,
+    if (!item.hasFile ||
+        skrb.statusTdp == 'Kosong' ||
+        skrb.statusTdp == '-' ||
+        skrb.statusTdp.toLowerCase().contains('tanpa tdp')) {
+      final snap = skrb.snapshotDocuments;
+      final hasDoc =
+          skrb.hasDocumentCustomer ||
+          skrb.documentCustomerId != null ||
+          snap['document_customer_id'] != null ||
+          snap['data_umum_file'] != null ||
+          snap['kop_surat_file'] != null ||
+          snap['alamat_permohonan'] != null ||
+          skrb.statusTdp.toLowerCase().contains('tanpa tdp') ||
+          item.statusText.toLowerCase().contains('tanpa tdp');
+
+      // final docId = skrb.documentCustomerId ?? snap['document_customer_id'];
+      // final docIdText = docId != null ? ' (ID: $docId)' : ''; //$docIdText
+
+      final tooltip = hasDoc
+          ? 'Dokumen Customer sudah tersedia\nFile TDP tidak dimasukkan.'
+          : 'Dokumen Customer belum ditambahkan.';
+
+      final displayText = hasDoc ? 'Tanpa TDP' : item.statusText;
+
+      return Tooltip(
+        message: tooltip,
+        child: Row(
+          children: [
+            Icon(
+              hasDoc
+                  ? Icons.remove_circle_outline
+                  : Icons.radio_button_unchecked,
+              size: 16,
+              color: hasDoc ? Colors.grey.shade600 : Colors.grey,
             ),
-          ),
-        ],
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                displayText,
+                style: TextStyle(
+                  color: hasDoc ? Colors.grey.shade700 : Colors.grey,
+                  fontSize: 12,
+                  fontWeight: hasDoc ? FontWeight.w600 : FontWeight.normal,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
       );
     }
 
@@ -75,6 +107,12 @@ class DetailSkrbTdpStatus extends StatelessWidget {
       tooltip =
           'Diperbarui Admin: TDP telah diupdate oleh Admin pada Document Customer.$tglStr\nMohon edit dan simpan ulang SKRB ini jika ingin menggunakan file TDP terbaru.';
       icon = Icons.update;
+    } else if (status.toLowerCase().contains('tanpa tdp')) {
+      // final docId = skrb.documentCustomerId ?? skrb.snapshotDocuments['document_customer_id'];
+      // final docIdText = docId != null ? ' (ID: $docId)' : ''; //$docIdText
+      color = Colors.grey.shade600;
+      tooltip = 'Dokumen Customer sudah tersedia\nFile TDP tidak dimasukkan.';
+      icon = Icons.remove_circle_outline;
     } else {
       color = colorScheme.onSurface;
       tooltip = 'Status: $status$tglStr';

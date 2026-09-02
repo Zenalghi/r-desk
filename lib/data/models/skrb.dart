@@ -98,6 +98,8 @@ class Skrb {
   final String jenisKendaraan;
   final String jenisPengajuan;
   final String statusTdp;
+  final int? documentCustomerId;
+  final bool hasDocumentCustomer;
   final String? nomorSut;
 
   String get chassisDisplayName => (merekDagang != null && merekDagang!.trim().isNotEmpty)
@@ -134,6 +136,8 @@ class Skrb {
     required this.jenisKendaraan,
     required this.jenisPengajuan,
     required this.statusTdp,
+    this.documentCustomerId,
+    this.hasDocumentCustomer = false,
     this.nomorSut,
     this.tdpMasaBerlaku,
     this.isTdpOutdated = false,
@@ -160,6 +164,20 @@ class Skrb {
           .toList();
     }
 
+    final docId = json['document_customer_id'] != null
+        ? int.tryParse(json['document_customer_id'].toString())
+        : (json['snapshot_documents'] != null && json['snapshot_documents'] is Map
+            ? int.tryParse('${json['snapshot_documents']['document_customer_id']}')
+            : null);
+
+    final hasDocCustomer = json['has_document_customer'] == true ||
+        docId != null ||
+        (json['snapshot_documents'] != null &&
+            json['snapshot_documents'] is Map &&
+            (json['snapshot_documents']['data_umum_file'] != null ||
+                json['snapshot_documents']['kop_surat_file'] != null ||
+                json['snapshot_documents']['alamat_permohonan'] != null));
+
     return Skrb(
       id: json['id'] ?? 0,
       idSkrb: json['id_skrb'] ?? '',
@@ -179,7 +197,9 @@ class Skrb {
           (json['is_tdp_outdated'] == true ||
               json['status_tdp'] == 'Diperbarui Admin')
           ? 'Diperbarui Admin'
-          : (json['status_tdp'] ?? '-'),
+          : (json['status_tdp'] ?? (hasDocCustomer ? 'Tanpa TDP' : '-')),
+      documentCustomerId: docId,
+      hasDocumentCustomer: hasDocCustomer,
       tdpMasaBerlaku: json['tdp_masa_berlaku'] != null
           ? '${json['tdp_masa_berlaku']}'
           : null,

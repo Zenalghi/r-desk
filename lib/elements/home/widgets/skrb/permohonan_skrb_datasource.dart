@@ -59,6 +59,8 @@ class PermohonanSkrbDataSource extends DataTableSource {
             skrb.tdpMasaBerlaku,
             skrb.isTdpOutdated,
             colorScheme,
+            hasDocumentCustomer: skrb.hasDocumentCustomer,
+            documentCustomerId: skrb.documentCustomerId,
           ),
         ),
         DataCell(_buildActionButtons(skrb, isUnsavedDraft)),
@@ -195,8 +197,10 @@ class PermohonanSkrbDataSource extends DataTableSource {
     String status,
     String? masaBerlakuStr,
     bool isOutdated,
-    ColorScheme colorScheme,
-  ) {
+    ColorScheme colorScheme, {
+    bool hasDocumentCustomer = false,
+    int? documentCustomerId,
+  }) {
     String tglStr = '';
     if (masaBerlakuStr != null &&
         masaBerlakuStr.isNotEmpty &&
@@ -207,6 +211,7 @@ class PermohonanSkrbDataSource extends DataTableSource {
     Color color;
     String tooltip;
     IconData icon;
+    String displayStatus = status;
 
     if (status.toLowerCase() == 'aktif' ||
         status.toLowerCase().contains('aktif')) {
@@ -230,9 +235,16 @@ class PermohonanSkrbDataSource extends DataTableSource {
       tooltip =
           'Diperbarui Admin: TDP telah diupdate oleh Admin pada Document Customer.$tglStr\nMohon edit dan simpan ulang SKRB ini jika ingin menggunakan file TDP terbaru.';
       icon = Icons.update;
+    } else if (hasDocumentCustomer ||
+        status.toLowerCase().contains('tanpa tdp')) {
+      // final docIdText = documentCustomerId != null ? ' (ID: $documentCustomerId)' : ''; //$docIdText
+      color = Colors.grey.shade600;
+      tooltip = 'Dokumen Customer sudah tersedia\nFile TDP tidak dimasukkan.';
+      icon = Icons.remove_circle_outline;
+      displayStatus = 'Tanpa TDP';
     } else {
       color = colorScheme.onSurface;
-      tooltip = 'Status: $status$tglStr';
+      tooltip = 'Belum ada data dokumen customer.';
       icon = Icons.help_outline;
     }
 
@@ -249,7 +261,7 @@ class PermohonanSkrbDataSource extends DataTableSource {
           Icon(icon, size: 14, color: color),
           const SizedBox(width: 4),
           Text(
-            status.replaceAll('Diperbarui Admin', 'Diperbarui\nAdmin'),
+            displayStatus.replaceAll('Diperbarui Admin', 'Diperbarui\nAdmin'),
             style: TextStyle(
               color: color,
               fontWeight: FontWeight.bold,

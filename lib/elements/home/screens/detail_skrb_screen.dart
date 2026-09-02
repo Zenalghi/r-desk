@@ -199,7 +199,9 @@ class _DetailSkrbScreenState extends ConsumerState<DetailSkrbScreen> {
     if (widget.skrbId != null) {
       ref.watch(skrbDetailProvider(widget.skrbId!)).whenData((skrb) {
         _checkAndTriggerBackgroundGambar(skrb);
-        if (!_hasAutoLoadedPreview && skrb.id > 0 && _lastLoadedSkrbId != skrb.id) {
+        if (!_hasAutoLoadedPreview &&
+            skrb.id > 0 &&
+            _lastLoadedSkrbId != skrb.id) {
           _hasAutoLoadedPreview = true;
           _lastLoadedSkrbId = skrb.id;
           Future.microtask(() {

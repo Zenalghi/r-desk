@@ -112,17 +112,28 @@ class DocItem {
     if (tdpData != null && tdpData is List) {
       tdpCount = tdpData.length;
     }
+
+    final hasDocCustomer = skrb.hasDocumentCustomer ||
+        skrb.documentCustomerId != null ||
+        snap['document_customer_id'] != null ||
+        snap['data_umum_file'] != null ||
+        snap['kop_surat_file'] != null ||
+        snap['alamat_permohonan'] != null ||
+        skrb.statusTdp == 'Tanpa TDP';
+
     list.add(
       DocItem(
         key: '3',
         label: 'Tanda Daftar Perusahaan (TDP)',
         sublabel: tdpCount > 0
             ? 'Tersedia $tdpCount file dari Dokumen Customer'
-            : 'Belum Ada File TDP',
+            : (hasDocCustomer
+                ? 'Dokumen Customer Ada (Tanpa TDP)'
+                : 'Belum Ada File TDP'),
         hasFile: tdpCount > 0,
         statusText: tdpCount > 0
             ? '${skrb.statusTdp}\n$tdpCount File'
-            : 'Kosong',
+            : (hasDocCustomer ? 'Tanpa TDP' : 'Kosong'),
         isOptionalUpload: false,
         // Klien: Icon hide hanya untuk grup file Optional (no. 5 - 9). Jika ingin aktifkan di sini, cukup hilangkan komentar:
         canBeHidden: false, // canBeHidden: true,

@@ -160,7 +160,13 @@ class CustomerDataSource extends DataTableSource {
           SelectableText(dateFormat.format(customer.updatedAt.toLocal())),
         ),
         DataCell(
-          _buildStatusTdpWidget(customer.statusTdp, customer.tdpMasaBerlaku, colorScheme),
+          _buildStatusTdpWidget(
+            customer.statusTdp,
+            customer.tdpMasaBerlaku,
+            colorScheme,
+            hasDocument: customer.hasDocument,
+            documentCustomerId: customer.documentCustomerId,
+          ),
         ),
         DataCell(
           Row(
@@ -183,9 +189,8 @@ class CustomerDataSource extends DataTableSource {
                 ),
                 tooltip: 'Document Customer: ${customer.namaPt}',
                 onPressed: () {
-                  ref
-                      .read(selectedDocumentCustomerProvider.notifier)
-                      .state = customer;
+                  ref.read(selectedDocumentCustomerProvider.notifier).state =
+                      customer;
                   ref.read(configurationTabIndexProvider.notifier).state = 1;
                 },
               ),
@@ -205,11 +210,47 @@ class CustomerDataSource extends DataTableSource {
   @override
   int get selectedRowCount => 0;
 
-  Widget _buildStatusTdpWidget(String? status, DateTime? masaBerlaku, ColorScheme colorScheme) {
-    if (status == null) {
+  Widget _buildStatusTdpWidget(
+    String? status,
+    DateTime? masaBerlaku,
+    ColorScheme colorScheme, {
+    bool hasDocument = false,
+    int? documentCustomerId,
+  }) {
+    if (status == null || status == '-' || status == 'Tanpa TDP') {
+      if (hasDocument || documentCustomerId != null || status == 'Tanpa TDP') {
+        // final docIdText = documentCustomerId != null ? ' (ID: $documentCustomerId)' : ''; //$docIdText
+        return Tooltip(
+          message:
+              'Dokumen Customer sudah tersedia\nFile TDP tidak dimasukkan.',
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.remove_circle_outline,
+                size: 14,
+                color: Colors.grey.shade600,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                'Tanpa TDP',
+                style: TextStyle(
+                  color: Colors.grey.shade600,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 11,
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+
       return const Tooltip(
-        message: 'Belum ada data dokumen atau masa berlaku TDP.',
-        child: Text('-', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+        message: 'Belum ada data dokumen customer.',
+        child: Text(
+          '-',
+          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+        ),
       );
     }
 
@@ -225,7 +266,8 @@ class CustomerDataSource extends DataTableSource {
     switch (status) {
       case 'Aktif':
         color = Colors.green.shade600;
-        tooltip = 'Aktif: Masa berlaku TDP masih aman (lebih dari 5 pekan).$tglStr';
+        tooltip =
+            'Aktif: Masa berlaku TDP masih aman (lebih dari 5 pekan).$tglStr';
         icon = Icons.check_circle;
         break;
       case 'WARNING':
