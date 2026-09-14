@@ -1,0 +1,57 @@
+name: 🚀 Deploy R-Desk to GitHub Pages
+
+on:
+  # 1. TRIGGER MANUAL (workflow_dispatch)
+  #    Eksekusi hanya berjalan saat Anda menekan tombol "Run workflow" di GitHub Web / Mobile.
+  workflow_dispatch:
+    inputs:
+      catatan_deploy:
+        description: 'Catatan pembaruan versi R-Desk Web'
+        required: false
+        default: 'Pembaruan rutin R-Desk Web ke GitHub Pages'
+
+  # 2. TRIGGER PUSH (Sengaja dinonaktifkan agar tidak trigger otomatis saat git push)
+  # push:
+  #   branches:
+  #     - main
+  #     - master
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    name: 🏗️ Build & Deploy GitHub Pages
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📋 Info Eksekusi Deploy
+        run: |
+          echo "================================================="
+          echo "  🚀 Mulai Deploy R-Desk ke GitHub Pages"
+          echo "  👤 Aktor   : ${{ github.actor }}"
+          echo "  🎯 Pemicu  : ${{ github.event_name }}"
+          echo "  📝 Catatan : ${{ github.event.inputs.catatan_deploy || 'Manual Trigger' }}"
+          echo "================================================="
+
+      - name: 📁 Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🚀 Setup Flutter Framework
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: 📦 Get Dependencies
+        run: flutter pub get
+
+      - name: 🏗️ Build Web Release
+        # Catatan: Sesuaikan nama base-href dengan nama repo GitHub Anda (/r-desk/)
+        run: flutter build web --release --base-href "/r-desk/"
+
+      - name: 🚀 Deploy to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: build/web
+          branch: gh-pages

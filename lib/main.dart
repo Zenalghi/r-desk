@@ -39,39 +39,56 @@ void main() async {
   final prefs = await SharedPreferences.getInstance();
   final isDarkMode = prefs.getBool('isDarkMode') ?? false;
 
-  // 1. Set Default URL (Bisa untuk fallback)
-  String baseUrl = 'http://master-gambar.test/api';
+  // 1. Cadangan Default URL: Laragon untuk development
+  const String fallbackDevUrl = 'http://master-gambar.test/api';
+  String baseUrl = fallbackDevUrl;
 
-  // 2. Logika Pemisahan Platform
-  if (kIsWeb) {
+  // 2. Cek preferensi custom_base_url dari penyimpanan pengguna jika pernah diubah manual
+  final savedUrl = kIsWeb ? prefs.getString('custom_base_url') : null;
+
+  if (savedUrl != null && savedUrl.trim().isNotEmpty) {
+    baseUrl = savedUrl.trim();
+    debugPrint("Menggunakan URL server dari penyimpanan: $baseUrl");
+  } else if (kIsWeb) {
     // === LOGIKA KHUSUS WEB ===
-    // Di Web kita tidak bisa baca config.json dari file system lokal.
-    // Kita tentukan URL berdasarkan mode build (Debug vs Release/Production)
-
-    if (kReleaseMode) {
-      // Di Production (menggunakan Docker Nginx Proxy Manager / Infra):
-      // Menggunakan Uri.base.origin secara dinamis agar otomatis mengikuti IP / Domain browser
-      // (Bekerja lancar di LAN 192.168.x.x, Tailscale 100.x.x.x, maupun domain, melalui rute NPM /api -> master-gambar-nginx:80)
+    if (Uri.base.host.contains('github.io')) {
+      // Default awal GitHub Pages (sebelum diisi oleh user)
+      baseUrl = "http://192.168.100.111/api";
+    } else if (kReleaseMode) {
+      // Di Production Docker Server SOHO:
+      // Menggunakan Uri.base.origin secara dinamis agar otomatis mengikuti IP/Domain browser (192.168.100.111 / 100.116.54.6)
       baseUrl = "${Uri.base.origin}/api";
     } else {
-      // Jika sedang Development (Debug), pakai Localhost/Test
-      // Catatan: Untuk Android Emulator gunakan 10.0.2.2, untuk Chrome bisa localhost/domain local
-      baseUrl = "http://master-gambar.test/api";
+      // Saat Web Development (Debug), pakai Laragon
+      baseUrl = fallbackDevUrl;
     }
 
     debugPrint("Running on WEB. Base URL: $baseUrl");
   } else {
     // === LOGIKA KHUSUS DESKTOP (WINDOWS) ===
+    // Utama/Release: Baca config.json jika ada.
+    // Cadangan/Development: Fallback ke Laragon (http://master-gambar.test/api).
     try {
       String configPath = 'config.json';
 
-      // Ambil path executable hanya jika BUKAN Web
+      // Ambil path executable
       final appDir = path.dirname(Platform.resolvedExecutable);
       configPath = path.join(appDir, 'config.json');
 
       final file = File(configPath);
+      File? activeConfigFile;
       if (await file.exists()) {
-        final content = await file.readAsString();
+        activeConfigFile = file;
+      } else {
+        // Cek juga di folder root project (saat debugging di VS Code/terminal)
+        final localProjectConfig = File('config.json');
+        if (await localProjectConfig.exists()) {
+          activeConfigFile = localProjectConfig;
+        }
+      }
+
+      if (activeConfigFile != null) {
+        final content = await activeConfigFile.readAsString();
         final config = json.decode(content) as Map<String, dynamic>;
 
         List<String> urls = [];
@@ -99,7 +116,7 @@ void main() async {
           final chosen = await _pickWorkingUrl(urls, timeoutMs: timeoutMs);
           if (chosen != null) {
             baseUrl = chosen;
-            debugPrint('Selected working baseUrl: $baseUrl');
+            debugPrint('Selected working baseUrl from config: $baseUrl');
           } else {
             debugPrint(
               'No reachable URL from config, using first entry as fallback.',
@@ -108,14 +125,18 @@ void main() async {
           }
         }
 
-        debugPrint("Config loaded from $configPath");
+        debugPrint("Config loaded from ${activeConfigFile.path}");
       } else {
-        debugPrint("Config file not found at $configPath, using default.");
+        // config.json tidak ditemukan (misal saat development) -> pakai Laragon
+        baseUrl = fallbackDevUrl;
+        debugPrint(
+          "Config file tidak ditemukan, fallback ke Laragon: $baseUrl",
+        );
       }
     } catch (e) {
       debugPrint("Error membaca config.json: $e");
-      // Fallback url jika config gagal dibaca di desktop
-      baseUrl = 'http://localhost/error-url/api';
+      // Fallback jika config gagal dibaca di desktop -> pakai Laragon
+      baseUrl = fallbackDevUrl;
     }
 
     // Window Manager hanya untuk Desktop
@@ -137,9 +158,8 @@ void main() async {
     });
   }
 
-  final container = ProviderContainer(
-    overrides: [baseUrlProvider.overrideWithValue(baseUrl)],
-  );
+  final container = ProviderContainer();
+  container.read(baseUrlProvider.notifier).state = baseUrl;
   container.read(darkModeProvider.notifier).state = isDarkMode;
 
   runApp(UncontrolledProviderScope(container: container, child: const MyApp()));

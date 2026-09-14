@@ -1,0 +1,37 @@
+# =====================================================================
+# DOCKER COMPOSE PRODUCTION - FLUTTER WEB (R-DESK)
+# =====================================================================
+# Berjalan berdampingan dengan Backend Laravel pada network 'rekayasa-network'.
+# Kontainer ini TIDAK mengekspos port langsung ke host.
+# Traffic diarahkan melalui Nginx Proxy Manager (NPM).
+# =====================================================================
+
+services:
+  r-desk-web:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.web
+    image: r-desk-web:production
+    container_name: r-desk-web
+    restart: always
+    environment:
+      TZ: Asia/Jakarta
+    networks:
+      - rekayasa-network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+        reservations:
+          memory: 64M
+          cpus: '0.1'
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  rekayasa-network:
+    external: true

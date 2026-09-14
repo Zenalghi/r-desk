@@ -6,10 +6,8 @@ import '../../elements/auth/repository/auth_repository.dart';
 import '../../data/providers/api_client.dart'; // Import class ApiClient
 import '../../elements/auth/auth_service.dart';
 
-final baseUrlProvider = Provider<String>((ref) {
-  // Nilai ini adalah fallback jika override gagal,
-  // atau Anda bisa melempar error.
-  throw UnimplementedError('baseUrlProvider tidak di-override');
+final baseUrlProvider = StateProvider<String>((ref) {
+  return 'http://192.168.100.111/api';
 });
 
 // Provider untuk instance ApiClient

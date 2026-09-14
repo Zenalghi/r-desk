@@ -1,0 +1,47 @@
+name: 🌐 Safe Deploy R-Desk Web (SOHO Production)
+
+on:
+  # 1. TRIGGER MANUAL (workflow_dispatch)
+  #    Eksekusi hanya berjalan saat Anda menekan tombol "Run workflow" di GitHub Web / Mobile.
+  workflow_dispatch:
+    inputs:
+      catatan_deploy:
+        description: 'Alasan atau catatan pembaruan versi Frontend'
+        required: false
+        default: 'Update rutin versi Frontend R-Desk Web'
+
+  # 2. TRIGGER PUSH (Sengaja dinonaktifkan demi keamanan)
+  # push:
+  #   branches:
+  #     - main
+  #     - master
+
+jobs:
+  deploy-soho-web:
+    name: 🛡️ Eksekusi Safe Update Web di SOHO
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: self-hosted
+
+    steps:
+      - name: 📋 Info Eksekusi CI/CD
+        run: |
+          echo "================================================="
+          echo "  🌐 Mulai Deploy Frontend R-Desk Web ke SOHO"
+          echo "  👤 Aktor   : ${{ github.actor }}"
+          echo "  🎯 Pemicu  : ${{ github.event_name }}"
+          echo "  📝 Catatan : ${{ github.event.inputs.catatan_deploy || 'Manual Trigger' }}"
+          echo "================================================="
+
+      - name: 🔒 Eksekusi Update Container Web
+        # Bekerja di folder khusus frontend di VM/Homeserver SOHO
+        run: |
+          cd /srv/workspace/apps/r-desk-web
+          git pull origin main || git pull origin master
+          docker compose -f docker-compose.web.yml up -d --build
+
+      - name: 🩺 Verifikasi Status Kontainer Web
+        run: |
+          cd /srv/workspace/apps/r-desk-web
+          docker compose -f docker-compose.web.yml ps
+          echo ""
+          echo "🎉 Proses Deploy Frontend R-Desk Web Berhasil tanpa mengganggu Backend!"
