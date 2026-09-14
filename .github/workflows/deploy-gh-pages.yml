@@ -47,7 +47,7 @@ jobs:
         run: flutter pub get
 
       - name: 🏗️ Build Web Release
-        run: flutter build web --release --base-href "/master_gambar/"
+        run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
 
       - name: 🚀 Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
