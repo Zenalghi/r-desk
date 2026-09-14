@@ -47,8 +47,7 @@ jobs:
         run: flutter pub get
 
       - name: 🏗️ Build Web Release
-        # Catatan: Sesuaikan nama base-href dengan nama repo GitHub Anda (/r-desk/)
-        run: flutter build web --release --base-href "/r-desk/"
+        run: flutter build web --release --base-href "/master_gambar/"
 
       - name: 🚀 Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
