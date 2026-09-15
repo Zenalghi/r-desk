@@ -35,13 +35,17 @@ jobs:
       - name: 🔒 Eksekusi Update Container Web
         # Bekerja di folder khusus frontend di VM/Homeserver SOHO
         run: |
-          cd /srv/workspace/apps/r-desk-web
-          git pull origin main || git pull origin master
+          cd /srv/workspace/apps/r_desk
+          git pull --ff-only origin main || git pull --ff-only origin master
+
+      - name: 🐳 Build Flutter Web & Start Container
+        run: |
+          cd /srv/workspace/apps/r_desk
           docker compose -f docker-compose.web.yml up -d --build
 
       - name: 🩺 Verifikasi Status Kontainer Web
         run: |
-          cd /srv/workspace/apps/r-desk-web
+          cd /srv/workspace/apps/r_desk
           docker compose -f docker-compose.web.yml ps
           echo ""
           echo "🎉 Proses Deploy Frontend R-Desk Web Berhasil tanpa mengganggu Backend!"
