@@ -193,6 +193,13 @@ class _AddVarianBodyFormState extends ConsumerState<AddVarianBodyForm> {
                   ),
                   popupProps: PopupProps.menu(
                     showSearchBox: true,
+                    fit: FlexFit.loose,
+                    // Kontrol lebar & tinggi menu popup (melebar ke kanan melebihi field input)
+                    constraints: const BoxConstraints(
+                      maxHeight: 400,
+                      minWidth: 850,
+                      maxWidth: 1000,
+                    ),
                     searchFieldProps: const TextFieldProps(
                       autofocus: true,
                       style: TextStyle(fontSize: 13, height: 1.0),
@@ -211,7 +218,10 @@ class _AddVarianBodyFormState extends ConsumerState<AddVarianBodyForm> {
                       borderRadius: BorderRadius.all(Radius.circular(8)),
                     ),
                     itemBuilder: (context, item, isSelected, isDisabled) {
-                      final hasSut = item.data != null && item.data!['nomor_sut'] != null && item.data!['nomor_sut'].toString().isNotEmpty;
+                      final hasSut =
+                          item.data != null &&
+                          item.data!['nomor_sut'] != null &&
+                          item.data!['nomor_sut'].toString().isNotEmpty;
                       return Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 10,
@@ -220,7 +230,8 @@ class _AddVarianBodyFormState extends ConsumerState<AddVarianBodyForm> {
                         alignment: Alignment.centerLeft,
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? Theme.of(context).colorScheme.primaryContainer.withValues(alpha: 0.3)
+                              ? Theme.of(context).colorScheme.primaryContainer
+                                    .withValues(alpha: 0.3)
                               : null,
                         ),
                         child: Column(
@@ -231,7 +242,7 @@ class _AddVarianBodyFormState extends ConsumerState<AddVarianBodyForm> {
                               item.name,
                               style: TextStyle(
                                 fontSize: 12,
-                                height: 1.0,
+                                height: 1.25,
                                 fontWeight: isSelected
                                     ? FontWeight.bold
                                     : FontWeight.normal,
@@ -239,7 +250,7 @@ class _AddVarianBodyFormState extends ConsumerState<AddVarianBodyForm> {
                                     ? Theme.of(context).primaryColor
                                     : Theme.of(context).colorScheme.onSurface,
                               ),
-                              maxLines: 1,
+                              maxLines: 3,
                               overflow: TextOverflow.ellipsis,
                             ),
                             if (hasSut) ...[
